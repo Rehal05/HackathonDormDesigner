@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { getRoomConfig } from "../../data/rooms/index";
 import type { RoomConfig } from "../../types/room3d";
 import Room from "./Room";
@@ -21,10 +22,7 @@ function Lights({ config }: { config: RoomConfig }) {
   const { width, depth } = config.dimensions;
   return (
     <>
-      {/* Strong ambient — fills the whole scene evenly, no darkness */}
       <ambientLight intensity={2.5} color="#ffffff" />
-
-      {/* Soft directional from upper-front-right — main light source */}
       <directionalLight
         position={[width * 1.5, 20, depth * 1.5]}
         intensity={2.0}
@@ -32,15 +30,11 @@ function Lights({ config }: { config: RoomConfig }) {
         castShadow
         shadow-mapSize={[2048, 2048]}
       />
-
-      {/* Fill light from opposite side to kill harsh shadows */}
       <directionalLight
         position={[-width, 15, -depth]}
         intensity={1.2}
         color="#e8f0ff"
       />
-
-      {/* Soft warm fill from below to brighten floor */}
       <hemisphereLight args={["#ffffff", "#d4c4a8", 1.0]} />
     </>
   );
@@ -62,6 +56,8 @@ export function RoomCanvas({
   showElectrics = false,
 }: RoomCanvasProps) {
   const config = getRoomConfig(roomId);
+  // Ref shared with Room so furniture drag can disable orbit
+  const orbitRef = useRef<OrbitControlsImpl>(null);
 
   if (!config) {
     return (
@@ -87,8 +83,10 @@ export function RoomCanvas({
         showGrid={showGrid}
         showDimensions={showDimensions}
         showElectrics={showElectrics}
+        orbitRef={orbitRef}
       />
       <OrbitControls
+        ref={orbitRef}
         enablePan={false}
         enableZoom={true}
         enableRotate={true}
