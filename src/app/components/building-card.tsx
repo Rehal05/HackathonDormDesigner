@@ -47,13 +47,17 @@ export function BuildingCard({ building, roomCount, imageUrl, onClick, isSelecte
         />
         
         <div 
-          className="absolute top-2 right-2 px-2 py-1"
+          className="absolute top-2 right-2 px-3 py-1"
           style={{
-            fontSize: "10px",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            backdropFilter: "blur(8px)",
-            borderRadius: "var(--radius-pill)",
-            color: "var(--text-muted)",
+              fontSize: "12px",
+              fontWeight: 600,
+              backgroundColor: "rgba(15, 15, 19, 0.85)", 
+              color: "var(--accent-purple)",
+              borderRadius: "var(--radius-pill)",
+              padding: "3px 8px",
+              backdropFilter: "blur(6px)",
+              border: "1px solid var(--border-default)",
+            
           }}
         >
           {roomCount} layouts
