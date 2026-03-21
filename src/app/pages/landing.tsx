@@ -27,6 +27,8 @@ export function Landing() {
   const [selectedBuilding, setSelectedBuilding] = useState<string | null>(null);
   const [showRoomGrid, setShowRoomGrid] = useState(false);
 
+   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+
   const rooms = selectedBuilding ? getRoomsByBuilding(selectedBuilding) : [];
   
   // Assign images to rooms
@@ -38,16 +40,22 @@ export function Landing() {
     if (selectedBuilding === buildingId) {
       setSelectedBuilding(null);
       setShowRoomGrid(false);
+      setSelectedRoom(null);
     } else {
       setSelectedBuilding(buildingId);
       setShowRoomGrid(false);
+      setSelectedRoom(null);
       setTimeout(() => setShowRoomGrid(true), 10);
     }
   };
 
   const handleRoomClick = (roomId: string) => {
+  setSelectedRoom(roomId); // highlight selected room in UI
+
+  setTimeout(() => {
     navigate(`/visualizer/${selectedBuilding}/${roomId}`);
-  };
+  }, 150); // small delay = nicer UX
+};
 
   const selectedBuildingData = buildings.find(b => b.id === selectedBuilding);
 
@@ -60,20 +68,20 @@ export function Landing() {
         <div className="pt-12 pb-9 max-w-[600px]">
           <div
             style={{
-              fontSize: "10px",
+              fontSize: "50px",
               color: "var(--accent-teal)",
               letterSpacing: "0.1em",
               fontWeight: 500,
             }}
           >
-            3D DORM VISUALIZER
+            DormDraft
           </div>
           
           <h1
             style={{
               fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 600,
-              fontSize: "42px",
+              fontWeight: 800,
+              fontSize: "40px",
               color: "var(--text-primary)",
               marginTop: "8px",
               lineHeight: 1.2,
@@ -85,7 +93,7 @@ export function Landing() {
           <p
             style={{
               fontSize: "15px",
-              color: "var(--text-secondary)",
+              color: "var(--text-primary)",
               marginTop: "12px",
               maxWidth: "460px",
               lineHeight: 1.6,
@@ -99,8 +107,8 @@ export function Landing() {
         <div className="mt-10">
           <div
             style={{
-              fontSize: "10px",
-              color: "var(--text-muted)",
+              fontSize: "18px",
+              color: "var(--text-primary)",
               letterSpacing: "0.1em",
               fontWeight: 500,
               marginBottom: "10px",
@@ -124,6 +132,7 @@ export function Landing() {
                 imageUrl={buildingImages[index % buildingImages.length]}
                 onClick={() => handleBuildingClick(building.id)}
                 isSelected={selectedBuilding === building.id}
+              
               />
             ))}
           </div>
@@ -149,8 +158,8 @@ export function Landing() {
 
             <div
               style={{
-                fontSize: "10px",
-                color: "var(--text-muted)",
+                fontSize: "18px",
+                color: "var(--text-primary)",
                 letterSpacing: "0.1em",
                 fontWeight: 500,
                 marginBottom: "8px",
@@ -166,13 +175,20 @@ export function Landing() {
                 gap: "12px",
               }}
             >
-              {rooms.map((room) => (
-                <RoomCard
+              {rooms.map((room, index) => (
+                <div
                   key={room.id}
-                  room={room}
-                  onClick={() => handleRoomClick(room.id)}
-                  isSelected={false}
-                />
+                  className="animate-room-in"
+                  style={{
+                    animationDelay: `${index * 50}ms`,
+                  }}
+                >
+                  <RoomCard
+                    room={room}
+                    onClick={() => handleRoomClick(room.id)}
+                    isSelected={selectedRoom === room.id}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -187,27 +203,39 @@ export function Landing() {
         >
           <div
             style={{
+              fontSize: "20px",
+              fontWeight: 600,
+              color: "#FFFFFF",
+              marginBottom: "16px",
+            }}
+          >
+            Getting started
+          </div>
+          <div
+            style={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: "28px",
             }}
           >
+            
             <div>
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,              // stronger weight
                   fontSize: "32px",
-                  color: "var(--accent-purple)",
-                  opacity: 0.18,
+                  color: "#E6A8FF",
+                  opacity: 1,                  // remove fade
+                  letterSpacing: "1px",        // subtle polish
                 }}
               >
                 01
               </div>
               <div
                 style={{
-                  fontSize: "13px",
-                  color: "var(--text-primary)",
+                  fontSize: "18px",
+                  color: "#FFFFFF",
                   marginTop: "8px",
                   fontWeight: 500,
                 }}
@@ -217,7 +245,7 @@ export function Landing() {
               <div
                 style={{
                   fontSize: "12px",
-                  color: "var(--text-secondary)",
+                  color: "#F2F2F2",
                   marginTop: "6px",
                   lineHeight: 1.5,
                 }}
@@ -230,10 +258,11 @@ export function Landing() {
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: "32px",
-                  color: "var(--accent-purple)",
-                  opacity: 0.18,
+                  color: "#E6A8FF",
+                  opacity: 1,
+                  letterSpacing: "1px",
                 }}
               >
                 02
@@ -241,7 +270,7 @@ export function Landing() {
               <div
                 style={{
                   fontSize: "13px",
-                  color: "var(--text-primary)",
+                  color: "#FFFFFF",
                   marginTop: "8px",
                   fontWeight: 500,
                 }}
@@ -251,7 +280,7 @@ export function Landing() {
               <div
                 style={{
                   fontSize: "12px",
-                  color: "var(--text-secondary)",
+                  color: "#F2F2F2",
                   marginTop: "6px",
                   lineHeight: 1.5,
                 }}
@@ -264,10 +293,11 @@ export function Landing() {
               <div
                 style={{
                   fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: "32px",
-                  color: "var(--accent-purple)",
-                  opacity: 0.18,
+                  color: "#E6A8FF",
+                  opacity: 1,
+                  letterSpacing: "1px",
                 }}
               >
                 03
@@ -275,7 +305,7 @@ export function Landing() {
               <div
                 style={{
                   fontSize: "13px",
-                  color: "var(--text-primary)",
+                  color: "#FFFFFF",
                   marginTop: "8px",
                   fontWeight: 500,
                 }}
@@ -285,7 +315,7 @@ export function Landing() {
               <div
                 style={{
                   fontSize: "12px",
-                  color: "var(--text-secondary)",
+                  color: "#F2F2F2",
                   marginTop: "6px",
                   lineHeight: 1.5,
                 }}
@@ -305,16 +335,16 @@ export function Landing() {
         >
           <div
             style={{
-              fontSize: "13px",
-              color: "var(--text-muted)",
+              fontSize: "18px",
+              color: "var(--text-primary)",
             }}
           >
             DormDraft
           </div>
           <div
             style={{
-              fontSize: "12px",
-              color: "var(--text-muted)",
+              fontSize: "16px",
+              color: "var(--text-primary)",
             }}
           >
             Built for move-in day
