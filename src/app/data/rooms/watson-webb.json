@@ -2,46 +2,69 @@
   "id": "watson-webb",
   "name": "Watson-Webb",
   "building": "watson-webb",
-  "dimensions": { "width": 12, "height": 9, "depth": 15 },
+  "dimensions": { "width": 11.5, "height": 9, "depth": 16 },
   "door": {
-    "hingePosition": [12, 0, 15],
+    "hingePosition": [5, 0, 15],
     "width": 2.67,
-    "swingRotation": 1.58
+    "swingRotation": 0
   },
-  "outlets": [
+  "outlets": [  
     { "id": "outlet-1", "position": [1, 1, 0.1] },
     { "id": "outlet-2", "position": [11, 1, 0.1] },
     { "id": "outlet-3", "position": [0.1, 1, 7] }
   ],
   "staticElements": [],
   "defaultFurniture": [
-    {
-      "id": "bed-default",
-      "modelType": "bed",
-      "initialPos": [2, 0, 2],
-      "initialRotation": 0,
-      "dimensions": { "width": 3.5, "height": 2, "depth": 6.5 }
-    },
+    
     {
       "id": "desk-default",
       "modelType": "desk",
       "initialPos": [8, 0, 2],
       "initialRotation": 0,
-      "dimensions": { "width": 4, "height": 2.5, "depth": 2 }
+      "dimensions": { "width": 3.5, "height": 2, "depth": 2.5 }
     },
     {
-      "id": "chair-default",
-      "modelType": "chair",
-      "initialPos": [8, 0, 4],
-      "initialRotation": 180,
-      "dimensions": { "width": 2, "height": 3, "depth": 2 }
+      "id": "desk-default-2",
+      "modelType": "desk",
+      "initialPos": [12, 2, 1],
+      "initialRotation": 0,
+      "dimensions": { "width": 3.5, "height": 2, "depth": 2.5 }
+    },
+    
+    {
+      "id": "window-default",
+      "modelType": "window",
+      "initialPos": [5, 2, 20],
+      "initialRotation": 1.2,
+      "dimensions": { "width": 1, "height": 5.17, "depth": 3.75 }
     },
     {
       "id": "closet-default",
       "modelType": "closet",
       "initialPos": [1, 0, 13],
       "initialRotation": 0,
-      "dimensions": { "width": 3, "height": 7, "depth": 2 }
+      "dimensions": { "width": 3, "height": 6, "depth": 2 }
+    },
+    {
+      "id": "closet-default-2",
+      "modelType": "closet",
+      "initialPos": [3, 5, 8],
+      "initialRotation": 0,
+      "dimensions": { "width": 3, "height": 6, "depth": 2 }
+    },
+    {
+      "id": "ww-bed",
+      "modelType": "ww_bed",
+      "initialPos": [5, 0, 13],
+      "initialRotation": 0,
+      "dimensions": { "width": 7, "height": 3, "depth": 3 }
+    },
+    {
+      "id": "ww-bed-2",
+      "modelType": "ww_bed",
+      "initialPos": [12, 0, 18],
+      "initialRotation": 0,
+      "dimensions": { "width": 7, "height": 3, "depth": 3 }
     }
   ],
   "lighting": {

@@ -1,7 +1,53 @@
+/// <reference types="@react-three/fiber" />
 import * as THREE from "three";
+import { useGLTF } from "@react-three/drei";
 import type { RoomConfig } from "../../types/room3d";
 import DimensionArrow from "./DimensionArrow";
 import DoorSwing from "./DoorSwing";
+
+import ww_bed_url    from "../../../haolin_components/ww_bed.glb";
+import loft_bed_url  from "../../../haolin_components/loft_bed.glb";
+import desk_url      from "../../../haolin_components/desk_drawer_chair.glb";
+import closet_url    from "../../../haolin_components/closet.glb";
+import window_url from "../../../haolin_components/window.glb";
+
+const MODEL_URLS: Record<string, string> = {
+  ww_bed:  ww_bed_url,
+  bed:     loft_bed_url,
+  desk:    desk_url,
+  chair:   desk_url,
+  closet:  closet_url,
+  window:  window_url,
+};
+
+function FurnitureModel({
+  modelType, position, rotationY, dimensions,
+}: {
+  modelType: string;
+  position: [number, number, number];
+  rotationY: number;
+  dimensions: { width: number; height: number; depth: number };
+}) {
+  const url = MODEL_URLS[modelType];
+  if (!url) return null;
+  const { scene } = useGLTF(url);
+  const clone = scene.clone(true);
+  const box = new THREE.Box3().setFromObject(clone);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const scaleX = dimensions.width  / (size.x || 1);
+  const scaleY = dimensions.height / (size.y || 1);
+  const scaleZ = dimensions.depth  / (size.z || 1);
+  const offsetY = -box.min.y * scaleY;
+  return (
+    <primitive
+      object={clone}
+      position={[position[0], position[1] + offsetY, position[2]]}
+      rotation={[0, (rotationY * Math.PI) / 180, 0]}
+      scale={[scaleX, scaleY, scaleZ]}
+    />
+  );
+}
 
 interface RoomProps {
   config: RoomConfig;
@@ -117,6 +163,17 @@ export default function Room({
           opacity={0.3}
         />
       )}
+
+      {/* Default furniture */}
+      {config.defaultFurniture.map((item) => (
+        <FurnitureModel
+          key={item.id}
+          modelType={item.modelType}
+          position={item.initialPos}
+          rotationY={item.initialRotation}
+          dimensions={item.dimensions}
+        />
+      ))}
 
       {/* Dimension arrows */}
       {showDimensions && (
