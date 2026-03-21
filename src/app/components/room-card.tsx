@@ -45,11 +45,14 @@ export function RoomCard({ room, onClick, isSelected }: RoomCardProps) {
         <div 
           className="absolute top-2 right-2 px-2 py-1"
           style={{
-            fontSize: "10px",
-            backgroundColor: "rgba(30, 30, 40, 0.8)",
-            backdropFilter: "blur(8px)",
+            fontSize: "12px",
+            fontWeight: 600,
+            backgroundColor: "rgba(15, 15, 19, 0.85)", 
+            color: "var(--accent-purple)",
             borderRadius: "var(--radius-pill)",
-            color: "var(--text-primary)",
+            padding: "3px 8px",
+            backdropFilter: "blur(6px)",
+            border: "1px solid var(--border-default)",
           }}
         >
           {room.occupancy}
@@ -85,6 +88,7 @@ export function RoomCard({ room, onClick, isSelected }: RoomCardProps) {
         >
           {room.name}
         </div>
+        
         <div
           style={{
             fontFamily: "'Inter', sans-serif",
