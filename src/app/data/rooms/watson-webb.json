@@ -21,7 +21,7 @@
       "modelType": "desk",
       "initialPos": [1, 0, 2],
       "initialRotation": 90,
-      "dimensions": { "width": 3.5, "height": 2, "depth": 2.5 },
+      "dimensions": { "width": 3.5, "height": 2, "depth": 2.5 }
     },
     {
       "id": "desk-default-2",
