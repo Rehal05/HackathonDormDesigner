@@ -1,0 +1,54 @@
+{
+  "id": "watson-webb",
+  "name": "Watson-Webb",
+  "building": "watson-webb",
+  "dimensions": { "width": 12, "height": 9, "depth": 15 },
+  "door": {
+    "hingePosition": [12, 0, 15],
+    "width": 2.67,
+    "swingRotation": 1.58
+  },
+  "outlets": [
+    { "id": "outlet-1", "position": [1, 1, 0.1] },
+    { "id": "outlet-2", "position": [11, 1, 0.1] },
+    { "id": "outlet-3", "position": [0.1, 1, 7] }
+  ],
+  "staticElements": [],
+  "defaultFurniture": [
+    {
+      "id": "bed-default",
+      "modelType": "bed",
+      "initialPos": [2, 0, 2],
+      "initialRotation": 0,
+      "dimensions": { "width": 3.5, "height": 2, "depth": 6.5 }
+    },
+    {
+      "id": "desk-default",
+      "modelType": "desk",
+      "initialPos": [8, 0, 2],
+      "initialRotation": 0,
+      "dimensions": { "width": 4, "height": 2.5, "depth": 2 }
+    },
+    {
+      "id": "chair-default",
+      "modelType": "chair",
+      "initialPos": [8, 0, 4],
+      "initialRotation": 180,
+      "dimensions": { "width": 2, "height": 3, "depth": 2 }
+    },
+    {
+      "id": "closet-default",
+      "modelType": "closet",
+      "initialPos": [1, 0, 13],
+      "initialRotation": 0,
+      "dimensions": { "width": 3, "height": 7, "depth": 2 }
+    }
+  ],
+  "lighting": {
+    "ambientIntensity": 0.5,
+    "pointLights": [
+      { "position": [6, 8.5, 7.5], "intensity": 40, "color": "#c8c0ff" },
+      { "position": [12, 2, 11], "intensity": 10, "color": "#F0B857" }
+    ]
+  }
+}
