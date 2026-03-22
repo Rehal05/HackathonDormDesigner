@@ -25,6 +25,14 @@ import room_furniture_url from "../../../haolin_components/room_furniture.glb";
 import window_url          from "../../../haolin_components/window.glb";
 import bean_bag_url        from "../../../furnitureLibrary/bean_bag.glb";
 import shoerack_url        from "../../../furnitureLibrary/shoerack.glb";
+import fan_url             from "../../../furnitureLibrary/fan.glb";
+import lamp_url             from "../../../furnitureLibrary/lamp.glb";
+import laundry_basket_url       from "../../../furnitureLibrary/laundry_basket.glb";
+import miniFridge_url       from "../../../furnitureLibrary/mini_Fridge.glb";
+import small_cart_url         from "../../../furnitureLibrary/small_cart.glb";
+import welcome_mat_url       from "../../../furnitureLibrary/welcome_mat.glb";
+import gaming_chair_url       from "../../../furnitureLibrary/gaming_chair.glb";
+import potted_plant_url       from "../../../furnitureLibrary/potted_plant_01.glb";
 
 const MODEL_URLS: Record<string, string> = {
   ww_bed: ww_bed_url,
@@ -42,6 +50,13 @@ const MODEL_URLS: Record<string, string> = {
   window: window_url,
   bean_bag: bean_bag_url,
   shoerack: shoerack_url,
+  fan: fan_url,
+  lamp: lamp_url,
+  //laundry_basket: laundry_basket_url,
+  mini_fridge: miniFridge_url,
+  small_cart: small_cart_url,
+  welcome_mat: welcome_mat_url,
+  gaming_chair: gaming_chair_url,
 };
 
 const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
