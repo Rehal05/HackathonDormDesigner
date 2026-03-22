@@ -45,3 +45,12 @@ export interface RoomConfig {
     }[];
   };
 }
+
+export interface FurniturePlacement {
+  id: string;
+  modelType: string;
+  initialPos: [number, number, number];
+  initialRotation: number;
+  dimensions: { width: number; height: number; depth: number };
+  scaleFactor?: number;   // multiplier on top of bounds-based scale (default 1.0)
+}

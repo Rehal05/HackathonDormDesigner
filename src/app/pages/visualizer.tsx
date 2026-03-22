@@ -4,43 +4,7 @@ import { ZoomIn, ZoomOut, Maximize2, Grid3x3, Search } from "lucide-react";
 import { getRoomById, getBuildingById } from "../data/rooms";
 import { furniture, furnitureCategories, FurnitureItem } from "../data/furniture";
 import { RoomCanvas } from "../components/viewer/RoomCanvas";
-
-const furnitureImages: Record<string, string> = {
-  "bed-1": "https://images.unsplash.com/photo-1655450075012-c0393e3cc1ce?w=200",
-  "bed-2": "https://images.unsplash.com/photo-1655450075012-c0393e3cc1ce?w=200",
-  "bed-3": "https://images.unsplash.com/photo-1655450075012-c0393e3cc1ce?w=200",
-  "bed-4": "https://images.unsplash.com/photo-1655450075012-c0393e3cc1ce?w=200",
-  "desk-1": "https://images.unsplash.com/photo-1723236228646-32b96ebc52b2?w=200",
-  "desk-2": "https://images.unsplash.com/photo-1723236228646-32b96ebc52b2?w=200",
-  "desk-3": "https://images.unsplash.com/photo-1723236228646-32b96ebc52b2?w=200",
-  "desk-4": "https://images.unsplash.com/photo-1723236228646-32b96ebc52b2?w=200",
-  "desk-5": "https://images.unsplash.com/photo-1723236228646-32b96ebc52b2?w=200",
-  "storage-1": "https://images.unsplash.com/photo-1771039753570-b3a1ddf868ab?w=200",
-  "storage-2": "https://images.unsplash.com/photo-1771039753570-b3a1ddf868ab?w=200",
-  "storage-3": "https://images.unsplash.com/photo-1771039753570-b3a1ddf868ab?w=200",
-  "storage-4": "https://images.unsplash.com/photo-1771039753570-b3a1ddf868ab?w=200",
-  "storage-5": "https://images.unsplash.com/photo-1771039753570-b3a1ddf868ab?w=200",
-  "storage-6": "https://images.unsplash.com/photo-1771039753570-b3a1ddf868ab?w=200",
-  "seating-1": "https://images.unsplash.com/photo-1757194455393-8e3134d4ce19?w=200",
-  "seating-2": "https://images.unsplash.com/photo-1698041383729-38eb70ce7a08?w=200",
-  "seating-3": "https://images.unsplash.com/photo-1757194455393-8e3134d4ce19?w=200",
-  "seating-4": "https://images.unsplash.com/photo-1698041383729-38eb70ce7a08?w=200",
-  "lighting-1": "https://images.unsplash.com/photo-1773593917074-f2938a8ee391?w=200",
-  "lighting-2": "https://images.unsplash.com/photo-1773593917074-f2938a8ee391?w=200",
-  "lighting-3": "https://images.unsplash.com/photo-1773593917074-f2938a8ee391?w=200",
-  "lighting-4": "https://images.unsplash.com/photo-1773593917074-f2938a8ee391?w=200",
-  "lighting-5": "https://images.unsplash.com/photo-1773593917074-f2938a8ee391?w=200",
-  "decor-1": "https://images.unsplash.com/photo-1763909130786-09d4aa364e8d?w=200",
-  "decor-2": "https://images.unsplash.com/photo-1763909130786-09d4aa364e8d?w=200",
-  "decor-3": "https://images.unsplash.com/photo-1763909130786-09d4aa364e8d?w=200",
-  "decor-4": "https://images.unsplash.com/photo-1763909130786-09d4aa364e8d?w=200",
-  "decor-5": "https://images.unsplash.com/photo-1763909130786-09d4aa364e8d?w=200",
-  "decor-6": "https://images.unsplash.com/photo-1763909130786-09d4aa364e8d?w=200",
-};
-
-furniture.forEach(item => {
-  item.imageUrl = furnitureImages[item.id] || "";
-});
+import { useFurnitureCollision } from "../context/FurnitureContext";
 
 export function Visualizer() {
   const { building: buildingId, room: roomId } = useParams();
@@ -115,7 +79,7 @@ export function Visualizer() {
           <div className="flex-1 overflow-y-auto" style={{ padding: "14px 16px 72px" }}>
             {activeTab === "info" && <RoomInfoTab room={room} building={building} />}
             {activeTab === "furniture" && (
-              <FurnitureTab furniture={filteredFurniture} searchQuery={searchQuery} onSearchChange={setSearchQuery} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} />
+              <FurnitureTab furniture={filteredFurniture} searchQuery={searchQuery} onSearchChange={setSearchQuery} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} roomId={roomId || "watson-webb"} />
             )}
             {activeTab === "about" && <AboutTab building={building} />}
           </div>
@@ -196,13 +160,16 @@ function RoomInfoTab({ room, building }: { room: any; building: any }) {
   );
 }
 
-function FurnitureTab({ furniture, searchQuery, onSearchChange, selectedCategory, onCategoryChange }: {
+function FurnitureTab({ furniture, searchQuery, onSearchChange, selectedCategory, onCategoryChange, roomId }: {
   furniture: FurnitureItem[];
   searchQuery: string;
   onSearchChange: (query: string) => void;
   selectedCategory: string | null;
   onCategoryChange: (category: string | null) => void;
+  roomId: string;
 }) {
+  const { removalMode, startRemoval, cancelRemoval, selectedForRemoval, confirmRemoval } = useFurnitureCollision();
+
   return (
     <div>
       <div className="relative mb-3">
@@ -220,8 +187,52 @@ function FurnitureTab({ furniture, searchQuery, onSearchChange, selectedCategory
           <CategoryPill key={cat.id} label={cat.label} active={selectedCategory === cat.id} onClick={() => onCategoryChange(cat.id)} />
         ))}
       </div>
+      <div className="flex gap-2 mb-4">
+        <ToggleButton
+          active={!removalMode}
+          onClick={() => removalMode && cancelRemoval()}
+          label="Add Mode"
+        />
+        <ToggleButton
+          active={removalMode}
+          onClick={() => !removalMode && startRemoval()}
+          label="Remove Mode"
+        />
+      </div>
+      {removalMode && selectedForRemoval && (
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={confirmRemoval}
+            style={{
+              fontSize: "12px",
+              backgroundColor: "#FF6B6B",
+              color: "white",
+              border: "none",
+              borderRadius: "var(--radius-sm)",
+              padding: "6px 12px",
+              cursor: "pointer"
+            }}
+          >
+            Confirm Remove
+          </button>
+          <button
+            onClick={cancelRemoval}
+            style={{
+              fontSize: "12px",
+              backgroundColor: "transparent",
+              color: "var(--text-secondary)",
+              border: "1px solid var(--border-default)",
+              borderRadius: "var(--radius-sm)",
+              padding: "6px 12px",
+              cursor: "pointer"
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      )}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px" }}>
-        {furniture.map((item) => <FurnitureCard key={item.id} item={item} />)}
+        {furniture.map((item) => <FurnitureCard key={item.id} item={item} roomId={roomId} />)}
       </div>
     </div>
   );
@@ -263,21 +274,29 @@ function CategoryPill({ label, active, onClick }: { label: string; active: boole
   );
 }
 
-function FurnitureCard({ item }: { item: FurnitureItem }) {
+function FurnitureCard({ item, roomId }: { item: FurnitureItem; roomId: string }) {
+  const { startPlacement } = useFurnitureCollision();
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleAddFurniture = () => {
+    startPlacement({
+      modelType: item.modelType,
+      initialRotation: 0,
+      dimensions: item.defaultDimensions,
+      scaleFactor: 1.0,
+    });
+  };
+
   return (
-    <div className="p-2.5 transition-all duration-150 cursor-pointer"
-      style={{ backgroundColor: "var(--elevated)", border: isHovered ? "1px solid var(--accent-blue)" : "1px solid var(--border-default)", borderLeft: isHovered ? "2px solid var(--accent-blue)" : "1px solid var(--border-default)", borderRadius: "var(--radius-md)" }}
+    <div className="p-3 transition-all duration-150 cursor-pointer"
+      style={{ backgroundColor: "var(--elevated)", border: isHovered ? "1px solid var(--accent-blue)" : "1px solid var(--border-default)", borderLeft: isHovered ? "2px solid var(--accent-blue)" : "1px solid var(--border-default)", borderRadius: "var(--radius-md)", minHeight: "130px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
       onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="h-[60px] mb-2 flex items-center justify-center" style={{ backgroundColor: "var(--input-bg)", borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
-        <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
-      </div>
-      <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "12px", color: "var(--text-primary)" }}>{item.name}</div>
-      <div className="flex items-center justify-between mt-1">
-        <div style={{ fontSize: "11px", color: "var(--accent-amber)" }}>${item.price}</div>
-        {isHovered && <button style={{ fontSize: "11px", color: "var(--accent-purple)", backgroundColor: "transparent", border: "none", cursor: "pointer", padding: 0 }}>+ Add</button>}
-      </div>
+      <div style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: "14px", color: "var(--text-primary)", lineHeight: 1.25, marginBottom: "6px" }}>{item.name}</div>
+      <div style={{ fontSize: "12px", color: "var(--accent-amber)", marginBottom: "8px" }}>${item.price}</div>
+      <button onClick={handleAddFurniture} style={{ width: "100%", fontSize: "13px", fontWeight: 600, color: "white", backgroundColor: "var(--accent-purple)", border: "none", borderRadius: "var(--radius-sm)", padding: "8px 0", cursor: "pointer" }}>
+        Add to room
+      </button>
     </div>
   );
 }

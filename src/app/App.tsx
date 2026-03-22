@@ -1,6 +1,11 @@
 import { RouterProvider } from "react-router";
 import { router } from "./routes";
+import { FurnitureProvider } from "./context/FurnitureContext";
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <FurnitureProvider>
+      <RouterProvider router={router} />
+    </FurnitureProvider>
+  );
 }
