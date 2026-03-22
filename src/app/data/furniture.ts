@@ -27,4 +27,6 @@ export const furniture: FurnitureItem[] = [
   { id: "closet_item", name: "Closet", modelType: "closet", category: "closet", price: 149, imageUrl: "", defaultDimensions: { width: 3, height: 6, depth: 2 } },
   { id: "bed_drawer", name: "Bed Drawer", modelType: "bed_drawer", category: "storage", price: 89, imageUrl: "", defaultDimensions: { width: 2, height: 1.5, depth: 1.5 } },
   { id: "ww_drawer", name: "WW Drawer", modelType: "ww_drawer", category: "storage", price: 79, imageUrl: "", defaultDimensions: { width: 2.5, height: 1.5, depth: 1.5 } },
+  { id: "bean_bag", name: "Bean Bag Chair", modelType: "bean_bag", category: "storage", price: 99, imageUrl: "", defaultDimensions: { width: 2, height: 1.5, depth: 2 } },
+  { id: "shoerack", name: "Shoe Rack", modelType: "shoerack", category: "storage", price: 49, imageUrl: "", defaultDimensions: { width: 2, height: 4, depth: 0.5 } },
 ];

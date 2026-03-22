@@ -14,6 +14,8 @@ export const MODEL_URLS: Record<string, string> = {
   "bed_drawer":           "/src/haolin_components/bed_drawer.glb",
   "ww_drawer":            "/src/haolin_components/ww_drawer.glb",
   "room_furniture":       "/src/haolin_components/room_furniture.glb",
+  "bean_bag":             "/src/haolin_components/bean_bag.glb",
+  "shoerack":             "/src/haolin_components/shoerack.glb",
   // add more here as you drop new GLBs in
 };
 
@@ -31,6 +33,8 @@ export const FURNITURE_MODEL_MAP: Record<string, string> = {
   "bed_drawer":     "bed_drawer",
   "ww_drawer":      "ww_drawer",
   "room_furniture": "room_furniture",
+  "bean_bag":       "bean_bag",
+  "shoerack":       "shoerack",
   // extend as needed
 };
 

@@ -23,6 +23,8 @@ import bed_drawer_url     from "../../../haolin_components/bed_drawer.glb";
 import ww_drawer_url      from "../../../haolin_components/ww_drawer.glb";
 import room_furniture_url from "../../../haolin_components/room_furniture.glb";
 import window_url          from "../../../haolin_components/window.glb";
+import bean_bag_url        from "../../../furnitureLibrary/bean_bag.glb";
+import shoerack_url        from "../../../furnitureLibrary/shoerack.glb";
 
 const MODEL_URLS: Record<string, string> = {
   ww_bed: ww_bed_url,
@@ -38,6 +40,8 @@ const MODEL_URLS: Record<string, string> = {
   ww_drawer: ww_drawer_url,
   room_furniture: room_furniture_url,
   window: window_url,
+  bean_bag: bean_bag_url,
+  shoerack: shoerack_url,
 };
 
 const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -257,20 +261,8 @@ function DraggableFurniture({
   }, [dimensions]);
 
   React.useEffect(() => {
-    // Keep the local Room registry in sync (default + dynamic furniture) for collision checks
-    registry.current.set(id, {
-      x: pos[0],
-      z: pos[2],
-      rotY: rotY,
-      dims: { width: dimensions.width, depth: dimensions.depth },
-    });
-
-    const unregister = registerFurniture(id, getBoundingBox);
-    return () => {
-      unregister();
-      registry.current.delete(id);
-    };
-  }, [id, registerFurniture, getBoundingBox, registry, dimensions, pos, rotY]);
+    return registerFurniture(id, getBoundingBox);
+  }, [id, registerFurniture, getBoundingBox]);
 
   const clampToWalls = useCallback(
     (x: number, z: number, rot: number): [number, number] => {
@@ -536,6 +528,25 @@ export default function Room({
       ]
     )
   );
+
+  // Update registry when dynamicFurniture changes
+  React.useEffect(() => {
+    // Remove old dynamic furniture not in current list
+    for (const [id] of registry.current) {
+      if (!config.defaultFurniture.some(d => d.id === id) && !dynamicFurniture.some(d => d.id === id)) {
+        registry.current.delete(id);
+      }
+    }
+    // Add/update current dynamic furniture
+    dynamicFurniture.forEach(item => {
+      registry.current.set(item.id, {
+        x: item.initialPos[0],
+        z: item.initialPos[2],
+        rotY: item.initialRotation,
+        dims: { width: item.dimensions.width, depth: item.dimensions.depth },
+      });
+    });
+  }, [dynamicFurniture, config.defaultFurniture]);
 
   return (
     <group>
