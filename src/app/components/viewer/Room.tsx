@@ -26,13 +26,74 @@ const MODEL_URLS: Record<string, string> = {
 
 const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-// Returns effective [footprintWidth, footprintDepth] after accounting for rotation
+// ─── Footprint helpers ────────────────────────────────────────────────────────
+
+/** Returns [footprintW, footprintD] swapped when rotation is 90°/270° */
 function rotatedFootprint(nomW: number, nomD: number, rotDeg: number): [number, number] {
   const snap = ((Math.round(rotDeg / 90) % 4) + 4) % 4;
   return snap % 2 === 0 ? [nomW, nomD] : [nomD, nomW];
 }
 
+/** AABB on the XZ plane for a piece at (cx, cz) with given footprint */
+function aabb(cx: number, cz: number, fw: number, fd: number) {
+  return {
+    minX: cx - fw / 2,
+    maxX: cx + fw / 2,
+    minZ: cz - fd / 2,
+    maxZ: cz + fd / 2,
+  };
+}
+
+/** True if two AABBs overlap (with a small epsilon to avoid float jitter) */
+function overlaps(
+  a: ReturnType<typeof aabb>,
+  b: ReturnType<typeof aabb>,
+  eps = 0.02
+): boolean {
+  return (
+    a.maxX - eps > b.minX &&
+    a.minX + eps < b.maxX &&
+    a.maxZ - eps > b.minZ &&
+    a.minZ + eps < b.maxZ
+  );
+}
+
+// ─── Shared registry ──────────────────────────────────────────────────────────
+
+/** One entry per furniture piece, kept current via refs so no re-renders */
+interface PieceState {
+  x: number;
+  z: number;
+  rotY: number;
+  dims: { width: number; depth: number };
+}
+
+type Registry = React.MutableRefObject<Map<string, PieceState>>;
+
+function checkCollision(
+  registry: Registry,
+  selfId: string,
+  cx: number,
+  cz: number,
+  rotY: number,
+  dims: { width: number; depth: number }
+): boolean {
+  const [fw, fd] = rotatedFootprint(dims.width, dims.depth, rotY);
+  const selfBox  = aabb(cx, cz, fw, fd);
+
+  for (const [id, piece] of registry.current.entries()) {
+    if (id === selfId) continue;
+    const [ofw, ofd] = rotatedFootprint(piece.dims.width, piece.dims.depth, piece.rotY);
+    const otherBox   = aabb(piece.x, piece.z, ofw, ofd);
+    if (overlaps(selfBox, otherBox)) return true;
+  }
+  return false;
+}
+
+// ─── DraggableFurniture ───────────────────────────────────────────────────────
+
 interface DraggableFurnitureProps {
+  id: string;
   modelType: string;
   initialPos: [number, number, number];
   initialRotation: number;
@@ -40,9 +101,11 @@ interface DraggableFurnitureProps {
   roomWidth: number;
   roomDepth: number;
   orbitRef: React.RefObject<OrbitControlsImpl>;
+  registry: Registry;
 }
 
 function DraggableFurniture({
+  id,
   modelType,
   initialPos,
   initialRotation,
@@ -50,21 +113,23 @@ function DraggableFurniture({
   roomWidth,
   roomDepth,
   orbitRef,
+  registry,
 }: DraggableFurnitureProps) {
   const url = MODEL_URLS[modelType];
   const { scene } = useGLTF(url ?? "");
   const { camera, gl } = useThree();
 
-  const [pos, setPos]         = useState<[number, number, number]>(initialPos);
-  const [rotY, setRotY]       = useState(initialRotation);
-  const [hovered, setHovered] = useState(false);
+  const [pos, setPos]           = useState<[number, number, number]>(initialPos);
+  const [rotY, setRotY]         = useState(initialRotation);
+  const [hovered, setHovered]   = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [blocked, setBlocked]   = useState(false); // red flash when can't move
 
   const didMove    = useRef(false);
   const dragOffset = useRef(new THREE.Vector3());
   const raycaster  = useRef(new THREE.Raycaster());
-  // Keep a live copy of rotY accessible inside pointer-event closures
   const rotYRef    = useRef(initialRotation);
+  const posRef     = useRef<[number, number, number]>(initialPos);
 
   if (!url) return null;
 
@@ -77,10 +142,10 @@ function DraggableFurniture({
   const scaleZ  = dimensions.depth  / (size.z || 1);
   const offsetY = -bbox.min.y * scaleY;
 
-  // Clamp position using the ROTATED footprint dimensions
-  const clampPos = useCallback(
-    (x: number, z: number, currentRotY: number): [number, number] => {
-      const [fw, fd] = rotatedFootprint(dimensions.width, dimensions.depth, currentRotY);
+  /** Wall clamp using rotated footprint */
+  const clampToWalls = useCallback(
+    (x: number, z: number, rot: number): [number, number] => {
+      const [fw, fd] = rotatedFootprint(dimensions.width, dimensions.depth, rot);
       return [
         Math.max(fw / 2, Math.min(roomWidth  - fw / 2, x)),
         Math.max(fd / 2, Math.min(roomDepth  - fd / 2, z)),
@@ -108,13 +173,12 @@ function DraggableFurniture({
       e.stopPropagation();
       didMove.current = false;
 
-      // Disable orbit so only the furniture moves
       if (orbitRef.current) orbitRef.current.enabled = false;
       setDragging(true);
 
       const floor = getFloorPoint(e.nativeEvent);
       if (floor) {
-        dragOffset.current.set(pos[0] - floor.x, 0, pos[2] - floor.z);
+        dragOffset.current.set(posRef.current[0] - floor.x, 0, posRef.current[2] - floor.z);
       }
 
       gl.domElement.setPointerCapture(e.pointerId);
@@ -123,16 +187,33 @@ function DraggableFurniture({
         didMove.current = true;
         const floor = getFloorPoint(ev);
         if (!floor) return;
-        const [cx, cz] = clampPos(
+
+        // 1. Wall clamp
+        const [wx, wz] = clampToWalls(
           floor.x + dragOffset.current.x,
           floor.z + dragOffset.current.z,
           rotYRef.current
         );
-        setPos((p) => [cx, p[1], cz]);
+
+        // 2. Collision check — if blocked, keep last valid position
+        const hit = checkCollision(registry, id, wx, wz, rotYRef.current, dimensions);
+        setBlocked(hit);
+
+        if (!hit) {
+          posRef.current = [wx, posRef.current[1], wz];
+          // Update registry immediately so other pieces see us move
+          registry.current.set(id, {
+            x: wx, z: wz,
+            rotY: rotYRef.current,
+            dims: { width: dimensions.width, depth: dimensions.depth },
+          });
+          setPos([wx, posRef.current[1], wz]);
+        }
       };
 
       const onUp = () => {
         setDragging(false);
+        setBlocked(false);
         if (orbitRef.current) orbitRef.current.enabled = true;
         gl.domElement.releasePointerCapture(e.pointerId);
         window.removeEventListener("pointermove", onMove);
@@ -142,28 +223,56 @@ function DraggableFurniture({
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup",   onUp);
     },
-    [pos, clampPos, getFloorPoint, gl, orbitRef]
+    [id, clampToWalls, getFloorPoint, gl, orbitRef, registry, dimensions]
   );
 
   const onPointerUp = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
-      // Only rotate if there was no drag movement
       if (!didMove.current) {
+        // Rotate 90°, then clamp walls, then check collision
         setRotY((prev) => {
           const next = prev + 90;
           rotYRef.current = next;
-          // Clamp with the new rotated footprint immediately
+
           setPos((p) => {
-            const [cx, cz] = clampPos(p[0], p[2], next);
-            return [cx, p[1], cz];
+            const [wx, wz] = clampToWalls(p[0], p[2], next);
+
+            // If rotating causes a collision, undo — keep previous rotation
+            const hit = checkCollision(registry, id, wx, wz, next, dimensions);
+            if (hit) {
+              rotYRef.current = prev;
+              // Update registry with reverted rotation
+              registry.current.set(id, {
+                x: p[0], z: p[2],
+                rotY: prev,
+                dims: { width: dimensions.width, depth: dimensions.depth },
+              });
+              return p; // position unchanged
+            }
+
+            posRef.current = [wx, p[1], wz];
+            registry.current.set(id, {
+              x: wx, z: wz,
+              rotY: next,
+              dims: { width: dimensions.width, depth: dimensions.depth },
+            });
+            return [wx, p[1], wz];
           });
+
+          // Return next optimistically; if collision was hit we'll correct below
           return next;
         });
+
+        // Correct rotY state if we had to undo (reads rotYRef after setRotY flush)
+        setTimeout(() => setRotY(rotYRef.current), 0);
       }
     },
-    [clampPos]
+    [id, clampToWalls, registry, dimensions]
   );
+
+  // Footprint color: red when blocked, purple when dragging normally
+  const footprintColor = blocked ? "#FF6B6B" : "#9B87F5";
 
   return (
     <group
@@ -190,16 +299,18 @@ function DraggableFurniture({
         </mesh>
       )}
 
-      {/* Drag footprint */}
+      {/* Drag footprint — turns red when blocked by another piece */}
       {dragging && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
           <planeGeometry args={[dimensions.width, dimensions.depth]} />
-          <meshStandardMaterial color="#9B87F5" transparent opacity={0.22} depthWrite={false} />
+          <meshStandardMaterial color={footprintColor} transparent opacity={0.3} depthWrite={false} />
         </mesh>
       )}
     </group>
   );
 }
+
+// ─── Room ─────────────────────────────────────────────────────────────────────
 
 interface RoomProps {
   config: RoomConfig;
@@ -220,6 +331,21 @@ export default function Room({
 }: RoomProps) {
   const { width, height, depth } = config.dimensions;
 
+  // Single registry ref shared across all DraggableFurniture instances
+  const registry = useRef<Map<string, PieceState>>(
+    new Map(
+      config.defaultFurniture.map((item) => [
+        item.id,
+        {
+          x: item.initialPos[0],
+          z: item.initialPos[2],
+          rotY: item.initialRotation,
+          dims: { width: item.dimensions.width, depth: item.dimensions.depth },
+        },
+      ])
+    )
+  );
+
   return (
     <group>
       {/* Floor */}
@@ -228,11 +354,7 @@ export default function Room({
         <meshStandardMaterial color="#c8b89a" roughness={0.8} metalness={0.0} />
       </mesh>
 
-      {/*
-        Grid: gridHelper is a square, so we create it at (width × width) with
-        width-many divisions, then scale the Z axis by depth/width so the cells
-        stretch exactly to the room edges — no leftover trim on any side.
-      */}
+      {/* Grid — sized exactly to floor, no overflow */}
       {showGrid && (
         <gridHelper
           args={[width, width, "#9B87F5", "#c0a882"]}
@@ -298,10 +420,11 @@ export default function Room({
         />
       )}
 
-      {/* Draggable furniture */}
+      {/* Draggable furniture — all share the same registry */}
       {config.defaultFurniture.map((item) => (
         <DraggableFurniture
           key={item.id}
+          id={item.id}
           modelType={item.modelType}
           initialPos={item.initialPos}
           initialRotation={item.initialRotation}
@@ -309,6 +432,7 @@ export default function Room({
           roomWidth={width}
           roomDepth={depth}
           orbitRef={orbitRef}
+          registry={registry}
         />
       ))}
 
