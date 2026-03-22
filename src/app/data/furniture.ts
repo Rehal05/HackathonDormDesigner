@@ -29,7 +29,7 @@ export const furniture: FurnitureItem[] = [
   { id: "ww_drawer", name: "WW Drawer", modelType: "ww_drawer", category: "storage", price: 79, imageUrl: "", defaultDimensions: { width: 2.5, height: 2, depth: 2 } },
   { id: "bean_bag", name: "Bean Bag Chair", modelType: "bean_bag", category: "storage", price: 99, imageUrl: "", defaultDimensions: { width: 2, height: 1.5, depth: 2 } },
   { id: "shoerack", name: "Shoe Rack", modelType: "shoerack", category: "storage", price: 49, imageUrl: "", defaultDimensions: { width: 2, height: 4, depth: 0.5 } },
-  { id: "fan", name: "Fan", modelType: "fan", category: "storage", price: 199, imageUrl: "", defaultDimensions: { width: 3, height: 3, depth: 3 } },
+  { id: "fan", name: "Fan", modelType: "fan", category: "storage", price: 199, imageUrl: "", defaultDimensions: { width: 2.5, height: 4, depth: 2.5 } },
   { id: "lamp", name: "Floor Lamp", modelType: "lamp", category: "storage", price: 79, imageUrl: "", defaultDimensions: { width: 2, height: 5, depth: 2 } },
   //{ id: "laundry_basket", name: "Laundry Basket", modelType: "laundry_basket", category: "storage", price: 29, imageUrl: "", defaultDimensions: { width: 2, height: 2, depth: 2 } },
   //{ id: "mini_fridge", name: "Mini Fridge", modelType: "mini_fridge", category: "storage", price: 149, imageUrl: "", defaultDimensions: { width: 2, height: 3, depth: 2} },
