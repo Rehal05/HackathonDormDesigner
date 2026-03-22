@@ -1,0 +1,68 @@
+{
+    "id": "cauthen",
+    "name": "Cauthen",
+    "building": "cauthen",
+    "dimensions": { "width": 11, "height": 9, "depth": 15 },
+    "door": {
+        "hingePosition": [0.5, 0, 16],
+        "width": 2.67,
+        "swingRotation": 0
+    },
+    "outlets": [  
+        { "id": "outlet-1", "position": [1, 1, 0.1] },
+        { "id": "outlet-2", "position": [11, 1, 0.1] },
+        { "id": "outlet-3", "position": [0.1, 1, 7] }
+    ],
+    "staticElements": [],
+    "defaultFurniture": [
+        {
+            "id": "ww-bed-left",
+            "modelType": "ww_bed",
+            "initialPos": [2, 0, 2],
+            "initialRotation": 0,
+            "dimensions": { "width": 3, "height": 3, "depth": 6.67 }
+        },
+        {
+            "id": "ww-bed-right",
+            "modelType": "ww_bed",
+            "initialPos": [9, 0, 2],
+            "initialRotation": 0,
+            "dimensions": { "width": 3, "height": 3, "depth": 6.67 }
+        },
+        {
+            "id": "desk-left",
+            "modelType": "desk",
+            "initialPos": [2, 0, 8],
+            "initialRotation": 0,
+            "dimensions": { "width": 3.5, "height": 2, "depth": 1.92 }
+        },
+        {
+            "id": "desk-right",
+            "modelType": "desk",
+            "initialPos": [9, 0, 8],
+            "initialRotation": 0,
+            "dimensions": { "width": 3.5, "height": 2, "depth": 1.92 }
+        },
+        {
+            "id": "closet-left",
+            "modelType": "closet",
+            "initialPos": [2, 0, 13],
+            "initialRotation": 0,
+            "dimensions": { "width": 2.92, "height": 6, "depth": 1.92 }
+        },
+        {
+            "id": "closet-right",
+            "modelType": "closet",
+            "initialPos": [9, 0, 13],
+            "initialRotation": 0,
+            "dimensions": { "width": 2.92, "height": 6, "depth": 1.92 }
+        }
+    ],
+    "lighting": {
+        "ambientIntensity": 0.5,
+        "pointLights": [
+        { "position": [6, 8.5, 7.5], "intensity": 40, "color": "#c8c0ff" },
+        { "position": [12, 2, 11], "intensity": 10, "color": "#F0B857" }
+        ]
+    }
+}
