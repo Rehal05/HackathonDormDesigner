@@ -99,7 +99,7 @@ export function Landing() {
               style={{
                 fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 800,
-                fontSize: "40px",
+                fontSize: "35px",
                 color: "var(--text-primary)",
                 marginTop: "8px",
                 lineHeight: 1.2,
