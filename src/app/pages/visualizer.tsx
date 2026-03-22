@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useParams, Link } from "react-router";
 import { ZoomIn, ZoomOut, Maximize2, Grid3x3, Search } from "lucide-react";
 import { getRoomById, getBuildingById } from "../data/rooms";
 import { furniture, furnitureCategories, FurnitureItem } from "../data/furniture";
-import { RoomCanvas } from "../components/viewer/RoomCanvas";
+import { RoomCanvas, type CaptureHandle } from "../components/viewer/RoomCanvas";
 
 const furnitureImages: Record<string, string> = {
   "bed-1": "https://images.unsplash.com/photo-1655450075012-c0393e3cc1ce?w=200",
@@ -49,6 +49,7 @@ export function Visualizer() {
   const [showGrid, setShowGrid] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const canvasRef = useRef<CaptureHandle>(null);
 
   const room = getRoomById(roomId || "");
   const building = getBuildingById(buildingId || "");
@@ -80,6 +81,7 @@ export function Visualizer() {
           style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: "13px", color: "var(--text-primary)", backgroundColor: "var(--elevated)", border: "1px solid var(--border-default)", borderRadius: "var(--radius-sm)", cursor: "pointer" }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--accent-teal)"; e.currentTarget.style.color = "var(--accent-teal)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.color = "var(--text-primary)"; }}
+          onClick={() => canvasRef.current?.capture()}
         >
           Download PNG
         </button>
@@ -89,6 +91,7 @@ export function Visualizer() {
         <div className="relative" style={{ flex: "1 1 62%", minWidth: "580px", backgroundColor: "#0C0C10", display: "flex", flexDirection: "column" }}>
           <div style={{ flex: 1, width: "100%", height: "100%" }}>
             <RoomCanvas
+              ref={canvasRef}
               roomId={roomId || "watson-webb"}
               showGrid={showGrid}
               showDoor={showDoor}
@@ -96,14 +99,7 @@ export function Visualizer() {
               showElectrics={false}
             />
           </div>
-          <div className="h-[44px] flex items-center justify-center gap-2 px-4" style={{ backgroundColor: "var(--surface)", borderTop: "1px solid var(--border-default)" }}>
-            <IconButton icon={ZoomIn} onClick={() => {}} />
-            <IconButton icon={ZoomOut} onClick={() => {}} />
-            <IconButton icon={Maximize2} onClick={() => {}} />
-            <div style={{ width: "1px", height: "20px", backgroundColor: "var(--border-default)", margin: "0 4px" }} />
-            <ToggleButton active={showDoor} onClick={() => setShowDoor(!showDoor)} label="Door" />
-            <IconButton icon={Grid3x3} onClick={() => setShowGrid(!showGrid)} active={showGrid} />
-          </div>
+          
         </div>
 
         <div style={{ flex: "1 1 38%", maxWidth: "460px", backgroundColor: "var(--surface)", borderLeft: "1px solid var(--border-default)", display: "flex", flexDirection: "column" }}>
