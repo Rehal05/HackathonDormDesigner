@@ -4,7 +4,7 @@
   "building": "kellogg",
   "dimensions": { "width": 11.7, "height": 9, "depth": 15.11 },
   "door": {
-    "hingePosition": [4.5, 0, 16],
+    "hingePosition": [4.5, 0, 15.05],
     "width": 2.67,
     "swingRotation": 0
   },
@@ -17,21 +17,6 @@
   "defaultFurniture": [
     
     {
-      "id": "desk-default",
-      "modelType": "desk",
-      "initialPos": [1, 0, 2],
-      "initialRotation": 90,
-      "dimensions": { "width": 3.5, "height": 3.5, "depth": 2.5 }
-    },
-    {
-      "id": "desk-default-2",
-      "modelType": "desk",
-      "initialPos": [10.5, 0, 2],
-      "initialRotation": -90,
-      "dimensions": { "width": 3.5, "height": 3.5, "depth": 2.5 }
-    },
-    
-    {
       "id": "window-default",
       "modelType": "window",
       "initialPos": [6, 2, 0],
@@ -41,30 +26,30 @@
     {
       "id": "closet-default",
       "modelType": "closet",
-      "initialPos": [1, 0, 14],
+      "initialPos": [1, 0, 10],
       "initialRotation": 90,
       "dimensions": { "width": 3, "height": 6, "depth": 2 }
     },
     {
       "id": "closet-default-2",
       "modelType": "closet",
-      "initialPos": [10.5, 0, 14],
+      "initialPos": [10.5, 0, 2],
       "initialRotation": -90,
       "dimensions": { "width": 3, "height": 6, "depth": 2 }
     },
     {
-      "id": "ww-bed",
-      "modelType": "ww_bed",
-      "initialPos": [1.5, 0, 8],
+      "id": "bed_combo",
+      "modelType": "combo",
+      "initialPos": [3, 0, 1],
       "initialRotation": 90,
-      "dimensions": { "width": 7, "height": 3, "depth": 3 }
+      "dimensions": { "width": 6.8, "height": 5, "depth": 3 }
     },
     {
-      "id": "ww-bed-2",
-      "modelType": "ww_bed",
-      "initialPos": [10, 0, 8],
+      "id": "bed_combo-2",
+      "modelType": "combo",
+      "initialPos": [9, 0, 14],
       "initialRotation": -90,
-      "dimensions": { "width": 7, "height": 3, "depth": 3 }
+      "dimensions": { "width": 6.8, "height": 5, "depth": 3 }
     }
   ],
   "lighting": {
