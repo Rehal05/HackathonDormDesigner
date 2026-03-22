@@ -4,6 +4,7 @@ import { Navbar } from "../components/navbar";
 import { BuildingCard } from "../components/building-card";
 import { RoomCard } from "../components/room-card";
 import { buildings, getRoomsByBuilding } from "../data/rooms";
+import heroRoom from "../assets/hero-room.png";
 
 // Building images
 const buildingImages = [
@@ -65,42 +66,90 @@ export function Landing() {
 
       <div className="max-w-[1200px] mx-auto px-6">
         {/* Hero */}
-        <div className="pt-12 pb-9 max-w-[600px]">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "40px",
+            alignItems: "center",
+            paddingTop: "48px",
+            paddingBottom: "36px",
+          }}
+        >
+          {/* Left: text */}
+          <div>
+            <div
+              style={{
+                fontSize: "50px",
+                color: "var(--accent-teal)",
+                letterSpacing: "0.1em",
+                fontWeight: 500,
+              }}
+            >
+              DormDraft
+            </div>
+
+            <h1
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 800,
+                fontSize: "40px",
+                color: "var(--text-primary)",
+                marginTop: "8px",
+                lineHeight: 1.2,
+              }}
+            >
+              See your room before move-in.
+            </h1>
+
+            <p
+              style={{
+                fontSize: "15px",
+                color: "var(--text-primary)",
+                marginTop: "12px",
+                maxWidth: "460px",
+                lineHeight: 1.6,
+              }}
+            >
+              Explore available dorm rooms in 3D and plan your layout with our
+              interactive visualizer. Choose your furniture, see estimated costs,
+              and make move-in day stress-free.
+            </p>
+          </div>
+
+          {/* Right: hero image */}
           <div
             style={{
-              fontSize: "50px",
-              color: "var(--accent-teal)",
-              letterSpacing: "0.1em",
-              fontWeight: 500,
+              position: "relative",
+              borderRadius: "16px",
+              overflow: "hidden",
+              // Subtle glow that matches the image's blue tones
+              boxShadow: "0 0 60px 8px rgba(100, 160, 255, 0.12), 0 0 120px 20px rgba(80, 120, 220, 0.07)",
             }}
           >
-            DormDraft
+            <img
+              src={heroRoom}
+              alt="3D dorm room visualizer"
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                borderRadius: "16px",
+              }}
+            />
+            {/* Fade the left edge so it blends into the page background */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(to right, var(--background) 0%, transparent 18%), " +
+                  "linear-gradient(to top, var(--background) 0%, transparent 12%)",
+                borderRadius: "16px",
+                pointerEvents: "none",
+              }}
+            />
           </div>
-          
-          <h1
-            style={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontWeight: 800,
-              fontSize: "40px",
-              color: "var(--text-primary)",
-              marginTop: "8px",
-              lineHeight: 1.2,
-            }}
-          >
-            See your room before move-in.
-          </h1>
-          
-          <p
-            style={{
-              fontSize: "15px",
-              color: "var(--text-primary)",
-              marginTop: "12px",
-              maxWidth: "460px",
-              lineHeight: 1.6,
-            }}
-          >
-            Explore available dorm rooms in 3D and plan your layout with our interactive visualizer. Choose your furniture, see estimated costs, and make move-in day stress-free.
-          </p>
         </div>
 
         {/* Building Grid */}
