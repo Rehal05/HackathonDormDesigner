@@ -28,7 +28,7 @@ import shoerack_url        from "../../../furnitureLibrary/shoerack.glb";
 import fan_url             from "../../../furnitureLibrary/fan.glb";
 import lamp_url             from "../../../furnitureLibrary/lamp.glb";
 import laundry_basket_url       from "../../../furnitureLibrary/laundry_basket.glb";
-import miniFridge_url       from "../../../furnitureLibrary/mini_Fridge.glb";
+//import miniFridge_url       from "../../../furnitureLibrary/mini_Fridge.glb";
 import small_cart_url         from "../../../furnitureLibrary/small_cart.glb";
 import welcome_mat_url       from "../../../furnitureLibrary/welcome_mat.glb";
 import gaming_chair_url       from "../../../furnitureLibrary/gaming_chair.glb";
@@ -53,7 +53,6 @@ const MODEL_URLS: Record<string, string> = {
   fan: fan_url,
   lamp: lamp_url,
   //laundry_basket: laundry_basket_url,
-  mini_fridge: miniFridge_url,
   small_cart: small_cart_url,
   welcome_mat: welcome_mat_url,
   gaming_chair: gaming_chair_url,

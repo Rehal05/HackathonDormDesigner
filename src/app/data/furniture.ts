@@ -32,7 +32,7 @@ export const furniture: FurnitureItem[] = [
   { id: "fan", name: "Fan", modelType: "fan", category: "storage", price: 199, imageUrl: "", defaultDimensions: { width: 3, height: 3, depth: 3 } },
   { id: "lamp", name: "Floor Lamp", modelType: "lamp", category: "storage", price: 79, imageUrl: "", defaultDimensions: { width: 2, height: 5, depth: 2 } },
   //{ id: "laundry_basket", name: "Laundry Basket", modelType: "laundry_basket", category: "storage", price: 29, imageUrl: "", defaultDimensions: { width: 2, height: 2, depth: 2 } },
-  { id: "mini_fridge", name: "Mini Fridge", modelType: "mini_fridge", category: "storage", price: 149, imageUrl: "", defaultDimensions: { width: 2, height: 3, depth: 2} },
+  //{ id: "mini_fridge", name: "Mini Fridge", modelType: "mini_fridge", category: "storage", price: 149, imageUrl: "", defaultDimensions: { width: 2, height: 3, depth: 2} },
   { id: "small_cart", name: "Small Cart", modelType: "small_cart", category: "storage", price: 59, imageUrl: "", defaultDimensions: { width: 2, height: 3, depth: 1 } },
   { id: "welcome_mat", name: "Welcome Mat", modelType: "welcome_mat", category: "storage", price: 19, imageUrl: "", defaultDimensions: { width: 4, height: 0.5, depth: 2.5 } },
   { id: "gaming_chair", name: "Gaming Chair", modelType: "gaming_chair", category: "storage", price: 199, imageUrl: "", defaultDimensions: { width: 2, height: 4, depth: 2 } },
