@@ -21,14 +21,16 @@
       "modelType": "desk",
       "initialPos": [1, 0, 2],
       "initialRotation": 90,
-      "dimensions": { "width": 3.5, "height": 3.5, "depth": 2.5 }
+      "dimensions": { "width": 3.5, "height": 3.5, "depth": 2.5 },
+      "scaleFactor": 1.0
     },
     {
       "id": "desk-default-2",
       "modelType": "desk",
       "initialPos": [10.5, 0, 2],
       "initialRotation": -90,
-      "dimensions": { "width": 3.5, "height": 3.5, "depth": 2.5 }
+      "dimensions": { "width": 3.5, "height": 3.5, "depth": 2.5 },
+      "scaleFactor": 1.0
     },
     
     {
@@ -36,35 +38,40 @@
       "modelType": "window",
       "initialPos": [6, 2, 0],
       "initialRotation": -90,
-      "dimensions": { "width": 1, "height": 5.17, "depth": 3.75 }
+      "dimensions": { "width": 1, "height": 5.17, "depth": 3.75 },
+      "scaleFactor": 1.0
     },
     {
       "id": "closet-default",
       "modelType": "closet",
       "initialPos": [1, 0, 14],
       "initialRotation": 90,
-      "dimensions": { "width": 3, "height": 6, "depth": 2 }
+      "dimensions": { "width": 3, "height": 6, "depth": 2 },
+      "scaleFactor": 1.0
     },
     {
       "id": "closet-default-2",
       "modelType": "closet",
       "initialPos": [10.5, 0, 14],
       "initialRotation": -90,
-      "dimensions": { "width": 3, "height": 6, "depth": 2 }
+      "dimensions": { "width": 3, "height": 6, "depth": 2 },
+      "scaleFactor": 1.0
     },
     {
       "id": "ww-bed",
       "modelType": "ww_bed",
       "initialPos": [1.5, 0, 8],
       "initialRotation": 90,
-      "dimensions": { "width": 7, "height": 3, "depth": 3 }
+      "dimensions": { "width": 7, "height": 3, "depth": 3 },
+      "scaleFactor": 1.0
     },
     {
       "id": "ww-bed-2",
       "modelType": "ww_bed",
       "initialPos": [10, 0, 8],
       "initialRotation": -90,
-      "dimensions": { "width": 7, "height": 3, "depth": 3 }
+      "dimensions": { "width": 7, "height": 3, "depth": 3 },
+      "scaleFactor": 1.0
     }
   ],
   "lighting": {

@@ -39,15 +39,15 @@
     },
     {
       "id": "bed_combo",
-      "modelType": "combo",
-      "initialPos": [3, 0, 1],
+      "modelType": "loft_bed_combo",
+      "initialPos": [1.5, 0, 3.5],
       "initialRotation": 90,
       "dimensions": { "width": 6.8, "height": 5, "depth": 3 }
     },
     {
       "id": "bed_combo-2",
-      "modelType": "combo",
-      "initialPos": [9, 0, 14],
+      "modelType": "loft_bed_combo",
+      "initialPos": [10, 0, 11.5],
       "initialRotation": -90,
       "dimensions": { "width": 6.8, "height": 5, "depth": 3 }
     }

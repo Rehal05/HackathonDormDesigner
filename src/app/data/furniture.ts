@@ -1,60 +1,50 @@
 export interface FurnitureItem {
   id: string;
   name: string;
-  category: "bed" | "desk" | "storage" | "seating" | "lighting" | "decor";
+  modelType: string;
+  category: "bed" | "desk" | "closet" | "storage";
   price: number;
   imageUrl: string;
+  defaultDimensions: { width: number; height: number; depth: number };
 }
 
 export const furnitureCategories = [
   { id: "bed", label: "Beds" },
   { id: "desk", label: "Desks" },
+  { id: "closet", label: "Closets" },
   { id: "storage", label: "Storage" },
-  { id: "seating", label: "Seating" },
-  { id: "lighting", label: "Lighting" },
-  { id: "decor", label: "Decor" },
 ] as const;
 
 export const furniture: FurnitureItem[] = [
-  // Beds
-  { id: "bed-1", name: "Twin XL Loft Bed", category: "bed", price: 289, imageUrl: "" },
-  { id: "bed-2", name: "Standard Twin Bed", category: "bed", price: 159, imageUrl: "" },
-  { id: "bed-3", name: "Platform Bed Frame", category: "bed", price: 199, imageUrl: "" },
-  { id: "bed-4", name: "Bunk Bed Set", category: "bed", price: 349, imageUrl: "" },
-  
-  // Desks
-  { id: "desk-1", name: "Corner Study Desk", category: "desk", price: 179, imageUrl: "" },
-  { id: "desk-2", name: "Compact Writing Desk", category: "desk", price: 129, imageUrl: "" },
-  { id: "desk-3", name: "L-Shape Workstation", category: "desk", price: 249, imageUrl: "" },
-  { id: "desk-4", name: "Adjustable Standing Desk", category: "desk", price: 329, imageUrl: "" },
-  { id: "desk-5", name: "Wall-Mounted Desk", category: "desk", price: 89, imageUrl: "" },
-  
-  // Storage
-  { id: "storage-1", name: "5-Drawer Dresser", category: "storage", price: 189, imageUrl: "" },
-  { id: "storage-2", name: "Cube Organizer 9-Box", category: "storage", price: 79, imageUrl: "" },
-  { id: "storage-3", name: "Under-Bed Storage", category: "storage", price: 45, imageUrl: "" },
-  { id: "storage-4", name: "Hanging Closet Organizer", category: "storage", price: 29, imageUrl: "" },
-  { id: "storage-5", name: "Bookshelf 5-Tier", category: "storage", price: 119, imageUrl: "" },
-  { id: "storage-6", name: "Storage Ottoman", category: "storage", price: 69, imageUrl: "" },
-  
-  // Seating
-  { id: "seating-1", name: "Ergonomic Desk Chair", category: "seating", price: 149, imageUrl: "" },
-  { id: "seating-2", name: "Bean Bag Chair", category: "seating", price: 59, imageUrl: "" },
-  { id: "seating-3", name: "Folding Lounge Chair", category: "seating", price: 79, imageUrl: "" },
-  { id: "seating-4", name: "Floor Cushion Set", category: "seating", price: 39, imageUrl: "" },
-  
-  // Lighting
-  { id: "lighting-1", name: "LED Desk Lamp", category: "lighting", price: 35, imageUrl: "" },
-  { id: "lighting-2", name: "Floor Lamp", category: "lighting", price: 59, imageUrl: "" },
-  { id: "lighting-3", name: "String Lights", category: "lighting", price: 18, imageUrl: "" },
-  { id: "lighting-4", name: "Smart LED Bulbs (4-pack)", category: "lighting", price: 45, imageUrl: "" },
-  { id: "lighting-5", name: "Clip-On Reading Light", category: "lighting", price: 22, imageUrl: "" },
-  
-  // Decor
-  { id: "decor-1", name: "Wall Tapestry", category: "decor", price: 28, imageUrl: "" },
-  { id: "decor-2", name: "Photo Display Clips", category: "decor", price: 15, imageUrl: "" },
-  { id: "decor-3", name: "Area Rug 5×7", category: "decor", price: 89, imageUrl: "" },
-  { id: "decor-4", name: "Wall Mirror", category: "decor", price: 42, imageUrl: "" },
-  { id: "decor-5", name: "Plant Set (3 pots)", category: "decor", price: 35, imageUrl: "" },
-  { id: "decor-6", name: "Bulletin Board", category: "decor", price: 24, imageUrl: "" },
+  // Haolin Components - All Available GLB Models (except window)
+  // { id: "ww_bed", name: "Watson Webb Bed", modelType: "ww_bed", category: "bed", price: 289, imageUrl: "", defaultDimensions: { width: 7, height: 3, depth: 3 } },
+  // { id: "loft_bed", name: "Loft Bed", modelType: "bed", category: "bed", price: 259, imageUrl: "", defaultDimensions: { width: 4, height: 5, depth: 2.5 } },
+  // { id: "loft_bed_2", name: "Loft Bed 2", modelType: "loft_bed_2", category: "bed", price: 279, imageUrl: "", defaultDimensions: { width: 4, height: 5.5, depth: 2.5 } },
+  // { id: "loft_bed_3", name: "Loft Bed 3", modelType: "loft_bed_3", category: "bed", price: 299, imageUrl: "", defaultDimensions: { width: 4.5, height: 6, depth: 3 } },
+  // { id: "loft_bed_4", name: "Loft Bed 4", modelType: "loft_bed_4", category: "bed", price: 319, imageUrl: "", defaultDimensions: { width: 4.5, height: 6.5, depth: 3 } },
+  // { id: "loft_bed_combo", name: "Loft Bed Combo", modelType: "loft_bed_combo", category: "bed", price: 399, imageUrl: "", defaultDimensions: { width: 5, height: 7, depth: 3.5 } },
+  // { id: "desk_item", name: "Desk with Drawer & Chair", modelType: "desk", category: "desk", price: 329, imageUrl: "", defaultDimensions: { width: 3.5, height: 3.5, depth: 2.5 } },
+  //{ id: "closet_item", name: "Closet", modelType: "closet", category: "closet", price: 149, imageUrl: "", defaultDimensions: { width: 3, height: 6, depth: 2 } },
+  //{ id: "bed_drawer", name: "Bed Drawer", modelType: "bed_drawer", category: "storage", price: 89, imageUrl: "", defaultDimensions: { width: 7, height: 3, depth: 3  } },
+  { id: "ww_drawer", name: "Drawer", modelType: "ww_drawer", category: "storage", price: 79, imageUrl: "", defaultDimensions: { width: 2.5, height: 2, depth: 2 } },
+  { id: "bean_bag", name: "Bean Bag Chair", modelType: "bean_bag", category: "storage", price: 99, imageUrl: "", defaultDimensions: { width: 2, height: 1.5, depth: 2 } },
+  { id: "shoerack", name: "Shoe Rack", modelType: "shoerack", category: "storage", price: 49, imageUrl: "", defaultDimensions: { width: 2, height: 4, depth: 0.5 } },
+  { id: "fan", name: "Fan", modelType: "fan", category: "storage", price: 199, imageUrl: "", defaultDimensions: { width: 2.5, height: 4, depth: 2.5 } },
+  { id: "lamp", name: "Floor Lamp", modelType: "lamp", category: "storage", price: 79, imageUrl: "", defaultDimensions: { width: 2, height: 5, depth: 2 } },
+  //{ id: "laundry_basket", name: "Laundry Basket", modelType: "laundry_basket", category: "storage", price: 29, imageUrl: "", defaultDimensions: { width: 2, height: 2, depth: 2 } },
+  //{ id: "mini_fridge", name: "Mini Fridge", modelType: "mini_fridge", category: "storage", price: 149, imageUrl: "", defaultDimensions: { width: 2, height: 3, depth: 2} },
+  { id: "small_cart", name: "Small Cart", modelType: "small_cart", category: "storage", price: 59, imageUrl: "", defaultDimensions: { width: 2, height: 3, depth: 1 } },
+  { id: "welcome_mat", name: "Welcome Mat", modelType: "welcome_mat", category: "storage", price: 19, imageUrl: "", defaultDimensions: { width: 4, height: 0.5, depth: 2.5 } },
+  { id: "gaming_chair", name: "Gaming Chair", modelType: "gaming_chair", category: "storage", price: 199, imageUrl: "", defaultDimensions: { width: 2, height: 4, depth: 2 } },
+  //{ id: "potted_plant", name: "Potted Plant", modelType: "potted_plant", category: "storage", price: 29, imageUrl: "", defaultDimensions: { width: 2, height: 2, depth: 2 } },
+ 
+    { id: "ww_bed", name: "Watson Webb Bed", modelType: "ww_bed", category: "bed", price: 289, imageUrl: "", defaultDimensions: { width: 7, height: 3, depth: 3 } },
+  { id: "loft_bed", name: "Loft Bed", modelType: "loft_bed", category: "bed", price: 259, imageUrl: "", defaultDimensions: { width: 4, height: 5, depth: 2.5 } },
+  { id: "loft_bed_2", name: "Tennis Racket", modelType: "loft_bed_2", category: "bed", price: 279, imageUrl: "", defaultDimensions: { width: 4, height: 5.5, depth: 2.5 } },
+  { id: "loft_bed_3", name: "Loft Bed 3", modelType: "loft_bed_3", category: "bed", price: 299, imageUrl: "", defaultDimensions: { width: 4.5, height: 6, depth: 3 } },
+  { id: "loft_bed_4", name: "Loft Bed 4", modelType: "loft_bed_4", category: "bed", price: 319, imageUrl: "", defaultDimensions: { width: 4.5, height: 6.5, depth: 3 } },
+  { id: "loft_bed_combo", name: "Loft Bed Combo", modelType: "loft_bed_combo", category: "bed", price: 399, imageUrl: "", defaultDimensions: { width: 5, height: 7, depth: 3.5 } },
+  { id: "desk_item", name: "Desk with Drawer & Chair", modelType: "desk", category: "desk", price: 329, imageUrl: "", defaultDimensions: { width: 3.5, height: 3.5, depth: 2.5 } },
+  { id: "closet_item", name: "Closet", modelType: "closet", category: "closet", price: 149, imageUrl: "", defaultDimensions: { width: 3, height: 6, depth: 2 } },
+  { id: "bed_drawer", name: "Bed Drawer", modelType: "bed_drawer", category: "storage", price: 89, imageUrl: "", defaultDimensions: { width: 7, height: 3, depth: 3  } },
 ];

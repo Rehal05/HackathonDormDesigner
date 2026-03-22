@@ -1,29 +1,63 @@
 /// <reference types="@react-three/fiber" />
-import { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, Suspense } from "react";
 import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import type { RoomConfig } from "../../types/room3d";
+import type { DynamicFurnitureItem, PlacementItem } from "../../context/FurnitureContext";
+import { useFurnitureCollision } from "../../context/FurnitureContext";
 import DimensionArrow from "./DimensionArrow";
 import DoorSwing from "./DoorSwing";
 
-import ww_bed_url   from "../../../haolin_components/ww_bed.glb";
-import loft_bed_url from "../../../haolin_components/loft_bed.glb";
-import desk_url     from "../../../haolin_components/desk_drawer_chair.glb";
-import closet_url   from "../../../haolin_components/closet.glb";
-import window_url   from "../../../haolin_components/window.glb";
-import cpombo_beed_url from "../../../haolin_components/loft_bed_combo.glb";
+import ww_bed_url         from "../../../haolin_components/ww_bed.glb";
+import loft_bed_url       from "../../../haolin_components/loft_bed.glb";
+import loft_bed_2_url     from "../../../haolin_components/loft_bed_2.glb";
+import loft_bed_3_url     from "../../../haolin_components/loft_bed_3.glb";
+import loft_bed_4_url     from "../../../haolin_components/loft_bed_4.glb";
+import loft_bed_combo_url from "../../../haolin_components/loft_bed_combo.glb";
+import desk_url           from "../../../haolin_components/desk_drawer_chair.glb";
+import closet_url         from "../../../haolin_components/closet.glb";
+import bed_drawer_url     from "../../../haolin_components/bed_drawer.glb";
+import ww_drawer_url      from "../../../haolin_components/ww_drawer.glb";
+import room_furniture_url from "../../../haolin_components/room_furniture.glb";
+import window_url          from "../../../haolin_components/window.glb";
+import bean_bag_url        from "../../../furnitureLibrary/bean_bag.glb";
+import shoerack_url        from "../../../furnitureLibrary/shoerack.glb";
+import fan_url             from "../../../furnitureLibrary/fan.glb";
+import lamp_url             from "../../../furnitureLibrary/lamp.glb";
+import laundry_basket_url       from "../../../furnitureLibrary/laundry_basket.glb";
+//import miniFridge_url       from "../../../furnitureLibrary/mini_Fridge.glb";
+import small_cart_url         from "../../../furnitureLibrary/small_cart.glb";
+import welcome_mat_url       from "../../../furnitureLibrary/welcome_mat.glb";
+import gaming_chair_url       from "../../../furnitureLibrary/gaming_chair.glb";
+import potted_plant_url       from "../../../furnitureLibrary/potted_plant_01.glb";
+
 
 const MODEL_URLS: Record<string, string> = {
   ww_bed: ww_bed_url,
   bed:    loft_bed_url,
+  loft_bed_2: loft_bed_2_url,
+  loft_bed_3: loft_bed_3_url,
+  loft_bed_4: loft_bed_4_url,
+  loft_bed_combo: loft_bed_combo_url,
+  combo: loft_bed_combo_url, // Kellogg room uses modelType 'combo'
   desk:   desk_url,
   chair:  desk_url,
   closet: closet_url,
+  bed_drawer: bed_drawer_url,
+  ww_drawer: ww_drawer_url,
+  room_furniture: room_furniture_url,
   window: window_url,
-  combo:  cpombo_beed_url,
+  bean_bag: bean_bag_url,
+  shoerack: shoerack_url,
+  fan: fan_url,
+  lamp: lamp_url,
+  //laundry_basket: laundry_basket_url,
+  small_cart: small_cart_url,
+  welcome_mat: welcome_mat_url,
+  gaming_chair: gaming_chair_url,
 };
 
 const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
@@ -92,6 +126,131 @@ function checkCollision(
   return false;
 }
 
+// ─── Fallback box (task 6) ────────────────────────────────────────────────────
+// Renders when a GLB URL is missing or fails to load.
+// Simple grey wireframe box sized to the furniture dimensions.
+
+function FallbackBox({ dimensions }: { dimensions: { width: number; height: number; depth: number } }) {
+  const { width, height, depth } = dimensions;
+  return (
+    <group>
+      {/* Solid grey fill */}
+      <mesh position={[0, height / 2, 0]}>
+        <boxGeometry args={[width, height, depth]} />
+        <meshStandardMaterial color="#aaaaaa" transparent opacity={0.5} />
+      </mesh>
+      {/* Wireframe outline so it's clearly a placeholder */}
+      <lineSegments position={[0, height / 2, 0]}>
+        <edgesGeometry args={[new THREE.BoxGeometry(width, height, depth)]} />
+        <lineBasicMaterial color="#777777" />
+      </lineSegments>
+    </group>
+  );
+}
+
+// ─── GLB loader with error boundary (task 6) ─────────────────────────────────
+// Separated so useGLTF is only called when url is valid,
+// and errors are caught without crashing the whole scene.
+
+interface GLBModelProps {
+  url: string;
+  dimensions: { width: number; height: number; depth: number };
+  scaleFactor: number;
+  onBounds?: (dimensions: { width: number; height: number; depth: number }) => void;
+}
+
+function GLBModel({ url, dimensions, scaleFactor, onBounds }: GLBModelProps) {
+  const { scene } = useGLTF(url);
+
+  const clone  = scene.clone(true);
+  const bbox   = new THREE.Box3().setFromObject(clone);
+  const size   = new THREE.Vector3();
+  bbox.getSize(size);
+
+  // Bounds-based scale to fit dimensions, then multiply by scaleFactor (task 5)
+  const scaleX  = (dimensions.width  / (size.x || 1)) * scaleFactor;
+  const scaleY  = (dimensions.height / (size.y || 1)) * scaleFactor;
+  const scaleZ  = (dimensions.depth  / (size.z || 1)) * scaleFactor;
+  const offsetY = -bbox.min.y * scaleY;
+
+  // Offer real model bounds to collision engine when loaded
+  const computedDimensions = {
+    width: size.x * scaleX,
+    height: size.y * scaleY,
+    depth: size.z * scaleZ,
+  };
+
+  React.useEffect(() => {
+    onBounds?.(computedDimensions);
+  }, [onBounds, computedDimensions.width, computedDimensions.height, computedDimensions.depth]);
+
+  // Center in XZ by geometry center, while keeping base at floor
+  const center = new THREE.Vector3();
+  bbox.getCenter(center);
+  const adjustedPosition: [number, number, number] = [
+    -center.x * scaleX,
+    offsetY,
+    -center.z * scaleZ,
+  ];
+
+  return (
+    <group position={adjustedPosition}>
+      <primitive object={clone} scale={[scaleX, scaleY, scaleZ]} />
+    </group>
+  );
+}
+
+// ─── FurnitureModel: routes to GLB or fallback (tasks 5 + 6) ─────────────────
+
+interface FurnitureModelProps {
+  modelType: string;
+  dimensions: { width: number; height: number; depth: number };
+  scaleFactor: number;
+  onBounds?: (dimensions: { width: number; height: number; depth: number }) => void;
+}
+
+function FurnitureModel({ modelType, dimensions, scaleFactor, onBounds }: FurnitureModelProps) {
+  const url = MODEL_URLS[modelType];
+  const [failed, setFailed] = useState(false);
+
+  // No URL registered for this modelType → show fallback immediately
+  if (!url || failed) {
+    return <FallbackBox dimensions={dimensions} />;
+  }
+
+  return (
+    <Suspense fallback={<FallbackBox dimensions={dimensions} />}>
+      <GLBModelWithCatch
+        url={url}
+        dimensions={dimensions}
+        scaleFactor={scaleFactor}
+        onError={() => setFailed(true)}
+        onBounds={onBounds}
+      />
+    </Suspense>
+  );
+}
+
+// Thin wrapper that catches useGLTF errors via an error boundary pattern
+function GLBModelWithCatch({
+  url,
+  dimensions,
+  scaleFactor,
+  onError,
+  onBounds,
+}: GLBModelProps & { onError: () => void }) {
+  try {
+    return <GLBModel url={url} dimensions={dimensions} scaleFactor={scaleFactor} onBounds={onBounds} />;
+  } catch {
+    // useGLTF throws a Promise (Suspense) or an Error
+    // If it's an actual error (not a Promise), trigger fallback
+    onError();
+    return null;
+  }
+}
+
+// ─── DraggableFurniture ───────────────────────────────────────────────────────
+
 // ─── DraggableFurniture ───────────────────────────────────────────────────────
 
 interface DraggableFurnitureProps {
@@ -100,6 +259,7 @@ interface DraggableFurnitureProps {
   initialPos: [number, number, number];
   initialRotation: number;
   dimensions: { width: number; height: number; depth: number };
+  scaleFactor?: number;   // task 5: optional multiplier, defaults to 1.0
   roomWidth: number;
   roomDepth: number;
   orbitRef: React.RefObject<OrbitControlsImpl>;
@@ -112,20 +272,23 @@ function DraggableFurniture({
   initialPos,
   initialRotation,
   dimensions,
+  scaleFactor = 1.0,
   roomWidth,
   roomDepth,
   orbitRef,
   registry,
 }: DraggableFurnitureProps) {
-  const url = MODEL_URLS[modelType];
-  const { scene } = useGLTF(url ?? "");
   const { camera, gl } = useThree();
+  const { registerFurniture, removalMode, selectedForRemoval, selectForRemoval } = useFurnitureCollision();
 
   const [pos, setPos]           = useState<[number, number, number]>(initialPos);
   const [rotY, setRotY]         = useState(initialRotation);
   const [hovered, setHovered]   = useState(false);
   const [dragging, setDragging] = useState(false);
-  const [blocked, setBlocked]   = useState(false); // red flash when can't move
+  const [blocked, setBlocked]   = useState(false);
+
+  const [actualDimensions, setActualDimensions] = useState(dimensions);
+  const effectiveDimensions = actualDimensions || dimensions;
 
   const didMove    = useRef(false);
   const dragOffset = useRef(new THREE.Vector3());
@@ -133,27 +296,28 @@ function DraggableFurniture({
   const rotYRef    = useRef(initialRotation);
   const posRef     = useRef<[number, number, number]>(initialPos);
 
-  if (!url) return null;
+  // Register this furniture with the context for collision detection
+  const getBoundingBox = useCallback(() => {
+    const [fw, fd] = rotatedFootprint(effectiveDimensions.width, effectiveDimensions.depth, rotYRef.current);
+    return new THREE.Box3(
+      new THREE.Vector3(posRef.current[0] - fw / 2, 0, posRef.current[2] - fd / 2),
+      new THREE.Vector3(posRef.current[0] + fw / 2, effectiveDimensions.height, posRef.current[2] + fd / 2)
+    );
+  }, [effectiveDimensions]);
 
-  const clone   = scene.clone(true);
-  const bbox    = new THREE.Box3().setFromObject(clone);
-  const size    = new THREE.Vector3();
-  bbox.getSize(size);
-  const scaleX  = dimensions.width  / (size.x || 1);
-  const scaleY  = dimensions.height / (size.y || 1);
-  const scaleZ  = dimensions.depth  / (size.z || 1);
-  const offsetY = -bbox.min.y * scaleY;
+  React.useEffect(() => {
+    return registerFurniture(id, getBoundingBox);
+  }, [id, registerFurniture, getBoundingBox]);
 
-  /** Wall clamp using rotated footprint */
   const clampToWalls = useCallback(
     (x: number, z: number, rot: number): [number, number] => {
-      const [fw, fd] = rotatedFootprint(dimensions.width, dimensions.depth, rot);
+      const [fw, fd] = rotatedFootprint(effectiveDimensions.width, effectiveDimensions.depth, rot);
       return [
         Math.max(fw / 2, Math.min(roomWidth  - fw / 2, x)),
         Math.max(fd / 2, Math.min(roomDepth  - fd / 2, z)),
       ];
     },
-    [dimensions.width, dimensions.depth, roomWidth, roomDepth]
+    [effectiveDimensions.width, effectiveDimensions.depth, roomWidth, roomDepth]
   );
 
   const getFloorPoint = useCallback(
@@ -190,20 +354,17 @@ function DraggableFurniture({
         const floor = getFloorPoint(ev);
         if (!floor) return;
 
-        // 1. Wall clamp
         const [wx, wz] = clampToWalls(
           floor.x + dragOffset.current.x,
           floor.z + dragOffset.current.z,
           rotYRef.current
         );
 
-        // 2. Collision check — if blocked, keep last valid position
         const hit = checkCollision(registry, id, wx, wz, rotYRef.current, dimensions);
         setBlocked(hit);
 
         if (!hit) {
           posRef.current = [wx, posRef.current[1], wz];
-          // Update registry immediately so other pieces see us move
           registry.current.set(id, {
             x: wx, z: wz,
             rotY: rotYRef.current,
@@ -232,48 +393,47 @@ function DraggableFurniture({
     (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
       if (!didMove.current) {
-        // Rotate 90°, then clamp walls, then check collision
-        setRotY((prev) => {
-          const next = prev + 90;
-          rotYRef.current = next;
+        if (removalMode) {
+          // In removal mode, select this furniture for removal
+          selectForRemoval(id);
+        } else {
+          // Normal mode: rotate the furniture
+          setRotY((prev) => {
+            const next = prev + 90;
+            rotYRef.current = next;
 
-          setPos((p) => {
-            const [wx, wz] = clampToWalls(p[0], p[2], next);
+            setPos((p) => {
+              const [wx, wz] = clampToWalls(p[0], p[2], next);
+              const hit = checkCollision(registry, id, wx, wz, next, dimensions);
+              if (hit) {
+                rotYRef.current = prev;
+                registry.current.set(id, {
+                  x: p[0], z: p[2],
+                  rotY: prev,
+                  dims: { width: dimensions.width, depth: dimensions.depth },
+                });
+                return p;
+              }
 
-            // If rotating causes a collision, undo — keep previous rotation
-            const hit = checkCollision(registry, id, wx, wz, next, dimensions);
-            if (hit) {
-              rotYRef.current = prev;
-              // Update registry with reverted rotation
+              posRef.current = [wx, p[1], wz];
               registry.current.set(id, {
-                x: p[0], z: p[2],
-                rotY: prev,
+                x: wx, z: wz,
+                rotY: next,
                 dims: { width: dimensions.width, depth: dimensions.depth },
               });
-              return p; // position unchanged
-            }
-
-            posRef.current = [wx, p[1], wz];
-            registry.current.set(id, {
-              x: wx, z: wz,
-              rotY: next,
-              dims: { width: dimensions.width, depth: dimensions.depth },
+              return [wx, p[1], wz];
             });
-            return [wx, p[1], wz];
+
+            return next;
           });
 
-          // Return next optimistically; if collision was hit we'll correct below
-          return next;
-        });
-
-        // Correct rotY state if we had to undo (reads rotYRef after setRotY flush)
-        setTimeout(() => setRotY(rotYRef.current), 0);
+          setTimeout(() => setRotY(rotYRef.current), 0);
+        }
       }
     },
-    [id, clampToWalls, registry, dimensions]
+    [id, clampToWalls, registry, dimensions, removalMode, selectForRemoval]
   );
 
-  // Footprint color: red when blocked, purple when dragging normally
   const footprintColor = blocked ? "#FF6B6B" : "#9B87F5";
 
   return (
@@ -291,23 +451,85 @@ function DraggableFurniture({
         gl.domElement.style.cursor = "auto";
       }}
     >
-      <primitive object={clone} position={[0, offsetY, 0]} scale={[scaleX, scaleY, scaleZ]} />
+      {/* Task 5 + 6: FurnitureModel handles scaleFactor and fallback */}
+      <FurnitureModel
+        modelType={modelType}
+        dimensions={dimensions}
+        scaleFactor={scaleFactor}
+        onBounds={(bounds) => {
+          // keep user-specified dimensions minimum but prefer real loaded model dimensions for collisions
+          if (
+            Math.abs(bounds.width - effectiveDimensions.width) > 0.1 ||
+            Math.abs(bounds.depth - effectiveDimensions.depth) > 0.1 ||
+            Math.abs(bounds.height - effectiveDimensions.height) > 0.1
+          ) {
+            setActualDimensions(bounds);
+          }
+        }}
+      />
 
       {/* Hover highlight */}
       {hovered && !dragging && (
-        <mesh position={[0, dimensions.height / 2 + offsetY, 0]}>
-          <boxGeometry args={[dimensions.width, dimensions.height, dimensions.depth]} />
+        <mesh position={[0, effectiveDimensions.height / 2, 0]}>
+          <boxGeometry args={[effectiveDimensions.width, effectiveDimensions.height, effectiveDimensions.depth]} />
           <meshStandardMaterial color="#9B87F5" transparent opacity={0.12} depthWrite={false} />
         </mesh>
       )}
 
-      {/* Drag footprint — turns red when blocked by another piece */}
+      {/* Removal selection highlight */}
+      {selectedForRemoval === id && (
+        <mesh position={[0, effectiveDimensions.height / 2, 0]}>
+          <boxGeometry args={[effectiveDimensions.width, effectiveDimensions.height, effectiveDimensions.depth]} />
+          <meshStandardMaterial color="#FF6B6B" transparent opacity={0.3} depthWrite={false} />
+        </mesh>
+      )}
+
+      {/* Drag footprint */}
       {dragging && (
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
-          <planeGeometry args={[dimensions.width, dimensions.depth]} />
+          <planeGeometry args={[effectiveDimensions.width, effectiveDimensions.depth]} />
           <meshStandardMaterial color={footprintColor} transparent opacity={0.3} depthWrite={false} />
         </mesh>
       )}
+    </group>
+  );
+}
+
+// ─── PlacementPreview ─────────────────────────────────────────────────────────
+
+interface PlacementPreviewProps {
+  item: DynamicFurnitureItem;
+  position: [number, number, number];
+  rotation: number;
+  registry: Registry;
+}
+
+function PlacementPreview({ item, position, rotation, registry }: PlacementPreviewProps) {
+  const { width, height, depth } = item.dimensions;
+  const cx = position[0];
+  const cz = position[2];
+
+  const hasCollision = checkCollision(registry, "", cx, cz, rotation, item.dimensions);
+
+  return (
+    <group position={position} rotation={[0, (rotation * Math.PI) / 180, 0]}>
+      {/* Semi-transparent furniture model */}
+      <FurnitureModel
+        modelType={item.modelType}
+        dimensions={item.dimensions}
+        scaleFactor={item.scaleFactor ?? 1.0}
+      />
+
+      {/* Placement footprint with collision feedback */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+        <planeGeometry args={[width, depth]} />
+        <meshStandardMaterial
+          color={hasCollision ? "#FF6B6B" : "#4ADE80"}
+          transparent
+          opacity={0.4}
+          depthWrite={false}
+        />
+      </mesh>
     </group>
   );
 }
@@ -321,6 +543,8 @@ interface RoomProps {
   showDimensions?: boolean;
   showElectrics?: boolean;
   orbitRef: React.RefObject<OrbitControlsImpl>;
+  dynamicFurniture?: DynamicFurnitureItem[];
+  placementItem?: PlacementItem | null;
 }
 
 export default function Room({
@@ -330,23 +554,54 @@ export default function Room({
   showDimensions = true,
   showElectrics = false,
   orbitRef,
+  dynamicFurniture = [],
+  placementItem = null,
 }: RoomProps) {
   const { width, height, depth } = config.dimensions;
 
-  // Single registry ref shared across all DraggableFurniture instances
   const registry = useRef<Map<string, PieceState>>(
     new Map(
-      config.defaultFurniture.map((item) => [
-        item.id,
-        {
-          x: item.initialPos[0],
-          z: item.initialPos[2],
-          rotY: item.initialRotation,
-          dims: { width: item.dimensions.width, depth: item.dimensions.depth },
-        },
-      ])
+      [
+        ...config.defaultFurniture.map((item) => [
+          item.id,
+          {
+            x: item.initialPos[0],
+            z: item.initialPos[2],
+            rotY: item.initialRotation,
+            dims: { width: item.dimensions.width, depth: item.dimensions.depth },
+          },
+        ] as const),
+        ...dynamicFurniture.map((item) => [
+          item.id,
+          {
+            x: item.initialPos[0],
+            z: item.initialPos[2],
+            rotY: item.initialRotation,
+            dims: { width: item.dimensions.width, depth: item.dimensions.depth },
+          },
+        ] as const),
+      ]
     )
   );
+
+  // Update registry when dynamicFurniture changes
+  React.useEffect(() => {
+    // Remove old dynamic furniture not in current list
+    for (const [id] of registry.current) {
+      if (!config.defaultFurniture.some(d => d.id === id) && !dynamicFurniture.some(d => d.id === id)) {
+        registry.current.delete(id);
+      }
+    }
+    // Add/update current dynamic furniture
+    dynamicFurniture.forEach(item => {
+      registry.current.set(item.id, {
+        x: item.initialPos[0],
+        z: item.initialPos[2],
+        rotY: item.initialRotation,
+        dims: { width: item.dimensions.width, depth: item.dimensions.depth },
+      });
+    });
+  }, [dynamicFurniture, config.defaultFurniture]);
 
   return (
     <group>
@@ -356,7 +611,7 @@ export default function Room({
         <meshStandardMaterial color="#c8b89a" roughness={0.8} metalness={0.0} />
       </mesh>
 
-      {/* Grid — sized exactly to floor, no overflow */}
+      {/* Grid */}
       {showGrid && (
         <gridHelper
           args={[width, width, "#9B87F5", "#c0a882"]}
@@ -422,7 +677,7 @@ export default function Room({
         />
       )}
 
-      {/* Draggable furniture — all share the same registry */}
+      {/* Draggable furniture — scaleFactor passed through from JSON */}
       {config.defaultFurniture.map((item) => (
         <DraggableFurniture
           key={item.id}
@@ -431,12 +686,40 @@ export default function Room({
           initialPos={item.initialPos}
           initialRotation={item.initialRotation}
           dimensions={item.dimensions}
+          scaleFactor={item.scaleFactor ?? 1.0}
           roomWidth={width}
           roomDepth={depth}
           orbitRef={orbitRef}
           registry={registry}
         />
       ))}
+
+      {/* Dynamic furniture added from palette */}
+      {dynamicFurniture.map((item) => (
+        <DraggableFurniture
+          key={item.id}
+          id={item.id}
+          modelType={item.modelType}
+          initialPos={item.initialPos}
+          initialRotation={item.initialRotation}
+          dimensions={item.dimensions}
+          scaleFactor={item.scaleFactor ?? 1.0}
+          roomWidth={width}
+          roomDepth={depth}
+          orbitRef={orbitRef}
+          registry={registry}
+        />
+      ))}
+
+      {/* Placement preview */}
+      {placementItem && (
+        <PlacementPreview
+          item={placementItem.item}
+          position={[placementItem.mousePos[0], 0, placementItem.mousePos[1]]}
+          rotation={placementItem.rotation}
+          registry={registry}
+        />
+      )}
 
       {/* Dimension arrows */}
       {showDimensions && (

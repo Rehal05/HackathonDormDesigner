@@ -56,11 +56,11 @@ export const buildings: Building[] = [
 export const rooms: Room[] = [
   {
     id: "watson-webb",
-    name: "Standard Single",
+    name: "Shared Double",
     building: "watson-webb",
-    occupancy: "Single",
-    dimensions: "12×15ft",
-    sqft: 180,
+    occupancy: "Double",
+    dimensions: "16'×11'6\"",
+    sqft: 184,
     doorNote: "Door opens inward, right wall",
     imageUrl: "",
     estimatedCost: 3250,
@@ -78,11 +78,11 @@ export const rooms: Room[] = [
 
   {
     id: "cauthen",
-    name: "Standard Single",
+    name: "Shared Double",
     building: "cauthen",
-    occupancy: "Single",
-    dimensions: "12×15ft",
-    sqft: 180,
+    occupancy: "Double",
+    dimensions: "11'×15'",
+    sqft: 165,
     doorNote: "Door opens inward, right wall",
     imageUrl: "",
     estimatedCost: 3250,
@@ -100,11 +100,11 @@ export const rooms: Room[] = [
 
   {
     id: "kellogg",
-    name: "Standard Single",
+    name: "Shared Double",
     building: "kellogg",
-    occupancy: "Single",
-    dimensions: "12×15ft",
-    sqft: 180,
+    occupancy: "Double",
+    dimensions: "11'7\"×15'11\"",
+    sqft: 185,
     doorNote: "Door opens inward, right wall",
     imageUrl: "",
     estimatedCost: 3250,

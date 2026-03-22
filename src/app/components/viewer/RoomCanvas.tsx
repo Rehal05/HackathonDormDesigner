@@ -5,6 +5,8 @@ import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { getRoomConfig } from "../../data/rooms/index";
 import type { RoomConfig } from "../../types/room3d";
 import Room from "./Room";
+import { useFurnitureCollision } from "../../context/FurnitureContext";
+import * as THREE from "three";
 
 export type CaptureHandle = { capture: () => void };
 
@@ -81,6 +83,77 @@ function Lights({ config }: { config: RoomConfig }) {
   );
 }
 
+function MouseHandler({
+  placementItem,
+  updatePlacement,
+  rotatePlacement,
+  confirmPlacement,
+  cancelPlacement,
+  config
+}: {
+  placementItem: any;
+  updatePlacement: (pos: [number, number]) => void;
+  rotatePlacement: () => void;
+  confirmPlacement: () => void;
+  cancelPlacement: () => void;
+  config: RoomConfig;
+}) {
+  const { camera, gl } = useThree();
+  const { width, depth } = config.dimensions;
+  const raycaster = useRef(new THREE.Raycaster());
+  const floorPlane = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
+
+  useEffect(() => {
+    if (!placementItem) return;
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = gl.domElement.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.current.setFromCamera({ x, y }, camera);
+      const intersectionPoint = new THREE.Vector3();
+      raycaster.current.ray.intersectPlane(floorPlane.current, intersectionPoint);
+
+      // Clamp to room bounds
+      const clampedX = Math.max(0, Math.min(width, intersectionPoint.x));
+      const clampedZ = Math.max(0, Math.min(depth, intersectionPoint.z));
+
+      updatePlacement([clampedX, clampedZ]);
+    };
+
+    const handleClick = () => {
+      confirmPlacement();
+    };
+
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+      cancelPlacement();
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'r' || event.key === 'R') {
+        event.preventDefault();
+        rotatePlacement();
+      }
+    };
+
+    gl.domElement.addEventListener('pointermove', handlePointerMove);
+    gl.domElement.addEventListener('click', handleClick);
+    gl.domElement.addEventListener('contextmenu', handleContextMenu);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      gl.domElement.removeEventListener('pointermove', handlePointerMove);
+      gl.domElement.removeEventListener('click', handleClick);
+      gl.domElement.removeEventListener('contextmenu', handleContextMenu);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [placementItem, camera, gl, width, depth, updatePlacement, rotatePlacement, confirmPlacement, cancelPlacement]);
+
+  return null;
+}
+
 interface RoomCanvasProps {
   roomId: string;
   showGrid: boolean;
@@ -98,6 +171,17 @@ export const RoomCanvas = forwardRef<CaptureHandle, RoomCanvasProps>(
     const orbitRef = useRef<OrbitControlsImpl>(null);
     const captureHandleRef = useRef<CaptureHandle | null>(null);
 
+    const {
+      dynamicFurniture,
+      placementItem,
+      updatePlacement,
+      rotatePlacement,
+      confirmPlacement,
+      cancelPlacement,
+      removalMode,
+      selectedForRemoval,
+    } = useFurnitureCollision();
+
     useImperativeHandle(ref, () => ({
       capture: () => captureHandleRef.current?.capture(),
     }), []);
@@ -113,35 +197,93 @@ export const RoomCanvas = forwardRef<CaptureHandle, RoomCanvasProps>(
     const { width, height, depth } = config.dimensions;
 
     return (
-      <Canvas
-        shadows
-        gl={{ preserveDrawingBuffer: true, antialias: true }}
-        style={{ width: "100%", height: "100%", background: "#1a1a2e" }}
-      >
-        <ScreenshotHelper handleRef={captureHandleRef} config={config} orbitRef={orbitRef} />
-        <SceneCamera config={config} />
-        <Lights config={config} />
-        <Room
-          config={config}
-          showDoor={showDoor}
-          showGrid={showGrid}
-          showDimensions={showDimensions}
-          showElectrics={showElectrics}
-          orbitRef={orbitRef}
-        />
-        <OrbitControls
-          ref={orbitRef}
-          enablePan={false}
-          enableZoom={true}
-          enableRotate={true}
-          minPolarAngle={Math.PI / 8}
-          maxPolarAngle={Math.PI / 2.1}
-          minDistance={Math.min(width, depth)}
-          maxDistance={Math.max(width, depth) * 4}
-          target={[width / 2, height / 3, depth / 2]}
-          makeDefault
-        />
-      </Canvas>
+      <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        <Canvas
+          shadows
+          gl={{ preserveDrawingBuffer: true, antialias: true }}
+          style={{ width: "100%", height: "100%", background: "#1a1a2e" }}
+        >
+          <ScreenshotHelper handleRef={captureHandleRef} config={config} orbitRef={orbitRef} />
+          <SceneCamera config={config} />
+          <Lights config={config} />
+          <MouseHandler
+            placementItem={placementItem}
+            updatePlacement={updatePlacement}
+            rotatePlacement={rotatePlacement}
+            confirmPlacement={confirmPlacement}
+            cancelPlacement={cancelPlacement}
+            config={config}
+          />
+          <Room
+            config={config}
+            showDoor={showDoor}
+            showGrid={showGrid}
+            showDimensions={showDimensions}
+            showElectrics={showElectrics}
+            orbitRef={orbitRef}
+            dynamicFurniture={dynamicFurniture}
+            placementItem={placementItem}
+          />
+          <OrbitControls
+            ref={orbitRef}
+            enablePan={false}
+            enableZoom={true}
+            enableRotate={true}
+            minPolarAngle={Math.PI / 8}
+            maxPolarAngle={Math.PI / 2.1}
+            minDistance={Math.min(width, depth)}
+            maxDistance={Math.max(width, depth) * 4}
+            target={[width / 2, height / 3, depth / 2]}
+            makeDefault
+          />
+        </Canvas>
+
+        {placementItem && (
+          <div style={{
+            position: "absolute",
+            top: 10,
+            left: 10,
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            padding: "8px 12px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            pointerEvents: "none"
+          }}>
+            Click to place • Press R to rotate • Right-click to cancel
+          </div>
+        )}
+        {removalMode && !selectedForRemoval && (
+          <div style={{
+            position: "absolute",
+            top: 10,
+            left: 10,
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            padding: "8px 12px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            pointerEvents: "none"
+          }}>
+            Click furniture to select for removal
+          </div>
+        )}
+        {removalMode && selectedForRemoval && (
+          <div style={{
+            position: "absolute",
+            top: 10,
+            left: 10,
+            backgroundColor: "rgba(255, 107, 107, 0.9)",
+            color: "white",
+            padding: "8px 12px",
+            borderRadius: "4px",
+            fontSize: "12px",
+            pointerEvents: "none"
+          }}>
+            Furniture selected • Use controls to confirm or cancel
+          </div>
+        )}
+      </div>
     );
   }
 );
