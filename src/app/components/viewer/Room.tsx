@@ -266,6 +266,33 @@ interface DraggableFurnitureProps {
   registry: Registry;
 }
 
+function StaticFurniture({
+  modelType,
+  initialPos,
+  initialRotation,
+  dimensions,
+  scaleFactor = 1.0,
+}: {
+  modelType: string;
+  initialPos: [number, number, number];
+  initialRotation: number;
+  dimensions: { width: number; height: number; depth: number };
+  scaleFactor?: number;
+}) {
+  return (
+    <group
+      position={initialPos}
+      rotation={[0, (initialRotation * Math.PI) / 180, 0]}
+    >
+      <FurnitureModel
+        modelType={modelType}
+        dimensions={dimensions}
+        scaleFactor={scaleFactor}
+      />
+    </group>
+  );
+}
+
 function DraggableFurniture({
   id,
   modelType,
@@ -677,22 +704,33 @@ export default function Room({
         />
       )}
 
-      {/* Draggable furniture — scaleFactor passed through from JSON */}
-      {config.defaultFurniture.map((item) => (
-        <DraggableFurniture
-          key={item.id}
-          id={item.id}
-          modelType={item.modelType}
-          initialPos={item.initialPos}
-          initialRotation={item.initialRotation}
-          dimensions={item.dimensions}
-          scaleFactor={item.scaleFactor ?? 1.0}
-          roomWidth={width}
-          roomDepth={depth}
-          orbitRef={orbitRef}
-          registry={registry}
-        />
-      ))}
+      {/* Default furniture — static items fixed, others draggable */}
+      {config.defaultFurniture.map((item) =>
+        item.modelType === "window" ? (
+          <StaticFurniture
+            key={item.id}
+            modelType={item.modelType}
+            initialPos={item.initialPos}
+            initialRotation={item.initialRotation}
+            dimensions={item.dimensions}
+            scaleFactor={item.scaleFactor ?? 1.0}
+          />
+        ) : (
+          <DraggableFurniture
+            key={item.id}
+            id={item.id}
+            modelType={item.modelType}
+            initialPos={item.initialPos}
+            initialRotation={item.initialRotation}
+            dimensions={item.dimensions}
+            scaleFactor={item.scaleFactor ?? 1.0}
+            roomWidth={width}
+            roomDepth={depth}
+            orbitRef={orbitRef}
+            registry={registry}
+          />
+        )
+      )}
 
       {/* Dynamic furniture added from palette */}
       {dynamicFurniture.map((item) => (
