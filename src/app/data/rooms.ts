@@ -45,10 +45,10 @@ export const buildings: Building[] = [
     policy: "Quiet hours from 10 PM to 8 AM. No candles or open flames. Guests must be signed in at the front desk.",
   },
   {
-    id: "lefevre",
-    name: "Lefevre House",
-    campus: "North Grounds",
-    description: "Lefevre House is a smaller residential community on North Grounds, offering a quieter living environment close to the Law School and North Grounds facilities.",
+    id: "shannon",
+    name: "Shannon House",
+    campus: "Central Grounds",
+    description: "Shannon House is a smaller residential community on North Grounds, offering a quieter living environment close to the Law School and North Grounds facilities.",
     policy: "Quiet hours from 10 PM to 8 AM. No candles or open flames. All guests must be registered.",
   },
 ];

@@ -6,11 +6,17 @@ import { RoomCard } from "../components/room-card";
 import { buildings, getRoomsByBuilding } from "../data/rooms";
 import heroRoom from "../assets/hero-room.png";
 
+import watsonwebb from "../assets/watson-webb.jpg";
+import cauthen from "../assets/cauthen.jpg"; 
+import kellogg from "../assets/kellog.jpg";
+import shannon from "../assets/shannon.jpg";
+
 // Building images
 const buildingImages = [
-  "https://images.unsplash.com/photo-1750863774182-06f0103b6b48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB1bml2ZXJzaXR5JTIwYnVpbGRpbmclMjBleHRlcmlvcnxlbnwxfHx8fDE3NzQxMTk1NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1581634928711-e19c3d57478d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xsZWdlJTIwZG9ybSUyMGJ1aWxkaW5nJTIwYXJjaGl0ZWN0dXJlfGVufDF8fHx8MTc3NDExOTU0OXww&ixlib=rb-4.1.0&q=80&w=1080",
-  "https://images.unsplash.com/photo-1769421977169-c45b3faa6b8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXNpZGVudGlhbCUyMGhhbGwlMjBidWlsZGluZ3xlbnwxfHx8fDE3NzQxMTk1NDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+  watsonwebb,
+  kellogg,
+  cauthen,
+  shannon
 ];
 
 // Room images
