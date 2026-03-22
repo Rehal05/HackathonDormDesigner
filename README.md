@@ -8,4 +8,10 @@
   Run `npm i` to install the dependencies.
 
   Run `npm run dev` to start the development server.
+
+
+
+  If cloning doesn't work, run: 
+* brew install git-lfs
+* git lfs install
   
