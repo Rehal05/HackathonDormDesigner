@@ -4,7 +4,7 @@
     "building": "cauthen",
     "dimensions": { "width": 11, "height": 9, "depth": 15 },
     "door": {
-        "hingePosition": [0.5, 0, 16],
+        "hingePosition": [0.1, 0, 15],
         "width": 2.67,
         "swingRotation": 0
     },
@@ -18,44 +18,44 @@
         {
             "id": "ww-bed-left",
             "modelType": "ww_bed",
-            "initialPos": [2, 0, 2],
+            "initialPos": [2, 0, 3.5],
             "initialRotation": 0,
             "dimensions": { "width": 3, "height": 3, "depth": 6.67 }
         },
         {
             "id": "ww-bed-right",
             "modelType": "ww_bed",
-            "initialPos": [9, 0, 2],
+            "initialPos": [9, 0, 3.5],
             "initialRotation": 0,
             "dimensions": { "width": 3, "height": 3, "depth": 6.67 }
         },
         {
             "id": "desk-left",
             "modelType": "desk",
-            "initialPos": [2, 0, 8],
-            "initialRotation": 0,
-            "dimensions": { "width": 3.5, "height": 2, "depth": 1.92 }
+            "initialPos": [1, 0, 9],
+            "initialRotation": 90,
+            "dimensions": { "width": 3.5, "height": 3.5, "depth": 1.92 }
         },
         {
             "id": "desk-right",
             "modelType": "desk",
-            "initialPos": [9, 0, 8],
-            "initialRotation": 0,
-            "dimensions": { "width": 3.5, "height": 2, "depth": 1.92 }
+            "initialPos": [10, 0, 9],
+            "initialRotation": 270,
+            "dimensions": { "width": 3.5, "height": 3.5, "depth": 1.92 }
         },
         {
             "id": "closet-left",
             "modelType": "closet",
-            "initialPos": [2, 0, 13],
-            "initialRotation": 0,
-            "dimensions": { "width": 2.92, "height": 6, "depth": 1.92 }
+            "initialPos": [5.5, 0, 14],
+            "initialRotation": 180,
+            "dimensions": { "width": 2.92, "height": 6.16, "depth": 1.92 }
         },
         {
             "id": "closet-right",
             "modelType": "closet",
-            "initialPos": [9, 0, 13],
-            "initialRotation": 0,
-            "dimensions": { "width": 2.92, "height": 6, "depth": 1.92 }
+            "initialPos": [9, 0, 14],
+            "initialRotation": 180,
+            "dimensions": { "width": 2.92, "height": 6.16, "depth": 1.92 }
         }
     ],
     "lighting": {
