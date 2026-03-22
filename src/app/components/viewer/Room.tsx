@@ -14,6 +14,7 @@ import loft_bed_url from "../../../haolin_components/loft_bed.glb";
 import desk_url     from "../../../haolin_components/desk_drawer_chair.glb";
 import closet_url   from "../../../haolin_components/closet.glb";
 import window_url   from "../../../haolin_components/window.glb";
+import cpombo_beed_url from "../../../haolin_components/loft_bed_combo.glb";
 
 const MODEL_URLS: Record<string, string> = {
   ww_bed: ww_bed_url,
@@ -22,6 +23,7 @@ const MODEL_URLS: Record<string, string> = {
   chair:  desk_url,
   closet: closet_url,
   window: window_url,
+  combo:  cpombo_beed_url,
 };
 
 const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
